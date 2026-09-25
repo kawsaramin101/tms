@@ -2,15 +2,29 @@
   "name": "tms",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/frontend",
-    "apps/backend",
-    "packages/*"
-  ],
   "allowScripts": {
     "@prisma/engines": true,
     "esbuild": true,
     "prisma": true,
     "unrs-resolver": true
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=tms-be",
+    "dev:frontend": "npm run dev --workspace=tms-fe",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "npm run build --workspace=tms-be",
+    "build:frontend": "npm run build --workspace=tms-fe",
+    "start:backend": "npm run start --workspace=tms-be",
+    "start:frontend": "npm run start --workspace=tms-fe",
+    "lint": "npm run lint:frontend",
+    "lint:frontend": "npm run lint --workspace=tms-fe"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "concurrently": "^10.0.5"
   }
 }

@@ -750,6 +750,96 @@ Before modifying code:
 
 Do not redesign unrelated parts of the project.
 ```
+## Prompt Fo Frontend
+
+If you're using an AI assistant to help write code for your module, give it this context so it doesn't produce code that clashes with the rest of the app:
+
+> This is a Next.js (App Router) + TypeScript + Tailwind + shadcn/ui project. I'm working only inside `src/modules/<my-team-name>/` and my route at `src/app/(dashboard)/<my-route>/page.tsx`. Don't modify `src/components/ui/`, `src/app/globals.css`, or `src/app/layout.tsx`. Use shadcn/ui components from `@/components/ui/*` and Tailwind theme tokens (`bg-background`, `text-foreground`, `bg-primary`, etc.) instead of hardcoded colors, so it matches the rest of the app in both light and dark mode. Default to Server Components; only add `"use client"` if the component needs `useState`, `useEffect`, or event handlers. Backend calls go through `@/lib/api-client.ts`.
+
+A few specific things worth telling it per task:
+- **When asking for a new page/component:** tell it which module folder it belongs in, and paste in `src/lib/api-client.ts` and `src/lib/utils.ts` so it reuses your existing patterns instead of inventing new ones.
+- **When asking for API calls:** tell it the backend route and expected request/response shape (or paste the relevant Express controller) so the types line up.
+- **When asking for styling:** tell it "match the Mira shadcn style, navy/gold accent, dense/professional look" — otherwise it'll default to generic purple SaaS styling.
+- **Always review AI-generated code before merging** — check it didn't touch shared files, didn't hardcode colors, and follows the `"use client"` rule above.
+
+
+
+## Prompt For Backend
+
+```text
+You are working on the TMS backend.
+
+Project:
+Treasury Management System
+
+Stack:
+- Node.js
+- Express.js
+- TypeScript
+- MariaDB/MySQL
+- Prisma
+
+Architecture:
+Feature-based modular architecture.
+
+src/modules/
+├── auth/
+├── transactions/
+├── vouchers/
+├── calculations/
+├── members/
+├── fees/
+├── reports/
+└── notifications/
+
+Shared infrastructure:
+src/middleware/
+src/lib/
+src/config/
+src/app.ts
+src/server.ts
+
+Rules:
+1. Work only on the module I specify.
+2. Do not redesign the project architecture.
+3. Do not create duplicate Prisma clients.
+4. Reuse existing shared middleware and utilities.
+5. Keep HTTP logic in controllers.
+6. Keep business logic in services.
+7. Keep routes inside the module's routes file.
+8. Keep module-specific validation in the validation file.
+9. Keep module-specific TypeScript types in the types file.
+10. Do not modify another team's module unless explicitly requested.
+11. Do not replace entire files when only a small change is required.
+12. Preserve existing code and make the smallest necessary change.
+13. Do not invent APIs, database fields, or existing functions.
+14. If required information is missing, ask before making architectural changes.
+15. Follow the existing coding style.
+
+My team/module:
+[PUT YOUR MODULE HERE]
+
+Task:
+[DESCRIBE THE TASK HERE]
+
+Before changing code:
+- Inspect the relevant existing files.
+- Explain which files need to change.
+- Then provide the implementation.
+```
+
+Replace:
+
+```text
+[PUT YOUR MODULE HERE]
+```
+
+with your team's module, for example:
+
+```text
+My team/module:
+members
+```
 
 ---
 

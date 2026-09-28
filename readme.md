@@ -750,7 +750,7 @@ Before modifying code:
 
 Do not redesign unrelated parts of the project.
 ```
-## Prompt Fo Frontend
+## Prompt For Frontend
 
 If you're using an AI assistant to help write code for your module, give it this context so it doesn't produce code that clashes with the rest of the app:
 

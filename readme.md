@@ -1,6 +1,6 @@
 # Vault — Inventory & Treasury Management System
 
-College-wide **Inventory & Treasury Management System (TMS)** built as a monorepo.
+**Inventory & Treasury Management System (TMS)** built as a monorepo.
 
 The project contains:
 

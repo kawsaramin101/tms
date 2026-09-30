@@ -1,0 +1,13 @@
+Software Requirements Specification (SRS)
+
+Module: User Authentication and Access Control
+
+1. Purpose
+
+1. The system shall provide secure login for registered users.
+2. It shall verify user identity before granting access.
+3. It shall control access based on user roles and permissions.
+4. It shall prevent unauthorized users from accessing protected resources.
+5. It shall allow administrators to manage user accounts.
+6. It shall provide secure password management.
+7. It shall maintain basic records of important security activities.

@@ -117,9 +117,9 @@ Do not put Prisma, Express, React, database logic, or UI code inside `packages/c
 | Team 3 | `modules/vouchers`      | `modules/vouchers`         |
 | Team 4 | `modules/calculations`  | `modules/auto-calculation` |
 | Team 5 | `modules/members`       | `modules/members-fees`     |
-| Team 6 | `modules/fees`          | `modules/members-fees`     |
-| Team 7 | `modules/reports`       | `modules/reporting`        |
-| Team 8 | `modules/notifications` | `modules/notifications`    |
+| Team 5 | `modules/fees`          | `modules/members-fees`     |
+| Team 6 | `modules/reports`       | `modules/reporting`        |
+| Team 7 | `modules/notifications` | `modules/notifications`    |
 
 The frontend and backend names are allowed to differ where one frontend feature combines multiple backend features.
 

@@ -4,11 +4,11 @@
 
 The project contains:
 
-* **Frontend** — Next.js + TypeScript + Tailwind CSS + shadcn/ui
-* **Backend** — Node.js + Express + TypeScript + Prisma
-* **Database** — MariaDB/MySQL
-* **Shared Contracts** — TypeScript types shared between frontend and backend
-* **Git/GitHub** — One repository, feature branches, Pull Requests
+- **Frontend** — Next.js + TypeScript + Tailwind CSS + shadcn/ui
+- **Backend** — Node.js + Express + TypeScript + Prisma
+- **Database** — MariaDB/MySQL
+- **Shared Contracts** — TypeScript types shared between frontend and backend
+- **Git/GitHub** — One repository, feature branches, Pull Requests
 
 ---
 
@@ -17,14 +17,14 @@ The project contains:
 ```text
 tms/
 ├── apps/
-│   ├── backend/              # Express + TypeScript API
-│   └── frontend/             # Next.js application
+│   ├── backend/
+│   └── frontend/
 │
 ├── packages/
-│   └── contracts/             # Shared frontend/backend TypeScript types
+│   └── contracts/
 │
-├── package.json               # Monorepo/workspace scripts
-├── package-lock.json          # Single lockfile
+├── package.json
+├── package-lock.json
 └── README.md
 ```
 
@@ -32,69 +32,105 @@ tms/
 
 ```text
 apps/backend/
-
 ├── prisma/
-│   ├── schema.prisma
-│   └── migrations/
+│   ├── migrations/
+│   └── schema.prisma
 │
 ├── src/
+│   ├── config/
+│   ├── lib/
+│   ├── middleware/
 │   ├── modules/
 │   │   ├── auth/
-│   │   ├── transactions/
-│   │   ├── vouchers/
 │   │   ├── calculations/
-│   │   ├── members/
-│   │   ├── fees/
+│   │   ├── members-fees/
+│   │   ├── notifications/
 │   │   ├── reports/
-│   │   └── notifications/
+│   │   ├── transactions/
+│   │   └── vouchers/
 │   │
-│   ├── middleware/
-│   ├── lib/
-│   ├── config/
 │   ├── app.ts
 │   └── server.ts
 │
+├── tests/
 ├── uploads/
-└── tests/
+├── package.json
+├── prisma.config.ts
+└── tsconfig.json
 ```
 
-Each backend feature module normally contains:
+### Backend Module Structure
+
+Each feature module follows the existing module structure:
 
 ```text
-module/
-├── *.controller.ts
-├── *.service.ts
-├── *.routes.ts
-├── *.validation.ts
-└── *.types.ts
+modules/<feature>/
+├── <feature>.controller.ts
+├── <feature>.routes.ts
+├── <feature>.service.ts
+├── <feature>.types.ts
+└── <feature>.validation.ts
 ```
+
+The validation file is included only in modules that require request validation.
 
 ## Frontend
 
 ```text
 apps/frontend/
-
 ├── src/
-│   ├── app/                  # Next.js routes
-│   ├── components/           # Shared UI/layout components
-│   ├── modules/              # Feature/team modules
-│   ├── lib/                  # Shared utilities/API client
+│   ├── app/
+│   │   ├── (auth)/
+│   │   └── (dashboard)/
+│   │
+│   ├── components/
+│   │   ├── layout/
+│   │   ├── shared/
+│   │   └── ui/
+│   │
+│   ├── lib/
+│   │
+│   ├── modules/
+│   │   ├── auth/
+│   │   ├── calculation/
+│   │   ├── members-fees/
+│   │   ├── notifications/
+│   │   ├── reporting/
+│   │   ├── transactions/
+│   │   └── vouchers/
+│   │
 │   ├── styles/
 │   └── types/
 │
-└── public/
+├── public/
+├── package.json
+├── next.config.ts
+├── eslint.config.mjs
+├── postcss.config.mjs
+└── tsconfig.json
 ```
 
-## Shared contracts
+### Frontend Module Structure
+
+Each feature module follows the existing structure:
+
+```text
+modules/<feature>/
+├── api.ts
+├── components/
+├── hooks/
+├── types.ts
+└── utils.ts
+```
+
+## Shared Contracts
 
 ```text
 packages/contracts/
-
 └── src/
     ├── auth/
-    ├── fees/
     ├── inventory/
-    ├── members/
+    ├── members-fees/
     ├── notifications/
     ├── reports/
     ├── transactions/
@@ -110,33 +146,32 @@ Do not put Prisma, Express, React, database logic, or UI code inside `packages/c
 
 # 2. Team Ownership
 
-| Team   | Backend                 | Frontend                   |
-| ------ | ----------------------- | -------------------------- |
-| Team 1 | `modules/auth`          | `modules/auth`             |
-| Team 2 | `modules/transactions`  | `modules/transactions`     |
-| Team 3 | `modules/vouchers`      | `modules/vouchers`         |
-| Team 4 | `modules/calculations`  | `modules/auto-calculation` |
-| Team 5 | `modules/members`       | `modules/members-fees`     |
-| Team 5 | `modules/fees`          | `modules/members-fees`     |
-| Team 6 | `modules/reports`       | `modules/reporting`        |
-| Team 7 | `modules/notifications` | `modules/notifications`    |
+The project is divided into **7 feature teams**.
 
-The frontend and backend names are allowed to differ where one frontend feature combines multiple backend features.
+| Team | Feature | Backend | Frontend |
+|------|---------|---------|----------|
+| Team 1 | User Authentication & Access Control | `modules/auth` | `modules/auth` |
+| Team 2 | Transaction Tracking | `modules/transactions` | `modules/transactions` |
+| Team 3 | Voucher Upload & Management | `modules/vouchers` | `modules/vouchers` |
+| Team 4 | Auto Calculation & Voucher Tracking | `modules/calculations` | `modules/calculation` |
+| Team 5 | Member & Fee Management | `modules/members-fees` | `modules/members-fees` |
+| Team 6 | Reporting | `modules/reports` | `modules/reporting` |
+| Team 7 | Notifications & Reminders | `modules/notifications` | `modules/notifications` |
 
 Shared infrastructure should be modified carefully:
 
 ```text
-apps/backend/src/middleware/
-apps/backend/src/lib/
 apps/backend/src/config/
+apps/backend/src/lib/
+apps/backend/src/middleware/
 apps/backend/src/app.ts
 apps/backend/src/server.ts
 apps/backend/prisma/
 
 apps/frontend/src/components/
 apps/frontend/src/lib/
-apps/frontend/src/app/layout.tsx
-apps/frontend/src/app/globals.css
+apps/frontend/src/app/
+apps/frontend/src/styles/
 
 packages/contracts/
 ```
@@ -147,10 +182,10 @@ packages/contracts/
 
 Install:
 
-* Node.js
-* npm
-* MariaDB/MySQL
-* Git
+- Node.js
+- npm
+- MariaDB/MySQL
+- Git
 
 Recommended environment:
 
@@ -175,6 +210,7 @@ Clone it:
 
 ```bash
 git clone https://github.com/kawsaramin101/tms.git
+
 cd tms
 ```
 
@@ -194,7 +230,9 @@ Do not run separate `npm install` commands inside:
 
 ```text
 apps/backend/
+
 apps/frontend/
+
 packages/contracts/
 ```
 
@@ -202,6 +240,7 @@ The project intentionally uses:
 
 ```text
 tms/
+
 ├── node_modules/
 ├── package-lock.json
 └── package.json
@@ -318,64 +357,65 @@ npm run dev:frontend
 
 Run commands from the repository root.
 
+Start frontend + backend:
+
 ```bash
 npm run dev
 ```
 
-Start frontend + backend.
+Start backend only:
 
 ```bash
 npm run dev:backend
 ```
 
-Start backend only.
+Start frontend only:
 
 ```bash
 npm run dev:frontend
 ```
 
-Start frontend only.
+Build frontend and backend:
 
 ```bash
 npm run build
 ```
 
-Build frontend and backend.
+Build backend:
 
 ```bash
 npm run build:backend
 ```
 
-Build backend.
+Build frontend:
 
 ```bash
 npm run build:frontend
 ```
 
-Build frontend.
+Start the built backend:
 
 ```bash
 npm run start:backend
 ```
 
-Start the built backend.
+Start the built frontend:
 
 ```bash
 npm run start:frontend
 ```
 
-Start the built frontend.
+Run frontend linting:
 
 ```bash
 npm run lint
 ```
 
-Run frontend linting.
-
 For workspace-specific commands:
 
 ```bash
 npm run <script> --workspace=tms-be
+
 npm run <script> --workspace=tms-fe
 ```
 
@@ -393,6 +433,7 @@ Before starting new work:
 
 ```bash
 git checkout main
+
 git pull origin main
 ```
 
@@ -408,8 +449,11 @@ Examples:
 
 ```bash
 git checkout -b feature/member-management
+
 git checkout -b feature/voucher-upload
+
 git checkout -b feature/transaction-api
+
 git checkout -b feature/notification-system
 ```
 
@@ -420,7 +464,7 @@ Work primarily inside your assigned module.
 Example:
 
 ```text
-apps/backend/src/modules/members/
+apps/backend/src/modules/members-fees/
 ```
 
 or:
@@ -441,6 +485,7 @@ Then test your changes:
 
 ```bash
 npm run build
+
 npm run lint
 ```
 
@@ -452,6 +497,7 @@ Use clear commit messages:
 
 ```bash
 git add .
+
 git commit -m "feat: add member management"
 ```
 
@@ -459,10 +505,15 @@ Examples:
 
 ```text
 feat: add member management
+
 feat: add voucher upload
+
 feat: add transaction API
+
 fix: validate transaction amount
+
 refactor: simplify transaction service
+
 docs: update project documentation
 ```
 
@@ -484,17 +535,19 @@ Open the repository on GitHub and create:
 
 ```text
 your-feature-branch
-        ↓
-      main
+
+       ↓
+
+     main
 ```
 
 The Pull Request should explain:
 
-* What was changed
-* Which module was changed
-* Whether the database/schema was changed
-* How the changes were tested
-* Any important notes for reviewers
+- What was changed
+- Which module was changed
+- Whether the database/schema was changed
+- How the changes were tested
+- Any important notes for reviewers
 
 Wait for review before merging.
 
@@ -504,6 +557,7 @@ After your PR is merged:
 
 ```bash
 git checkout main
+
 git pull origin main
 ```
 
@@ -519,24 +573,24 @@ git checkout -b feature/<next-feature>
 
 ### Never
 
-* Push directly to `main`
-* Commit `.env` or `.env.local`
-* Commit passwords or API keys
-* Rewrite another team's module unnecessarily
-* Create duplicate shared utilities
-* Create another Prisma client
-* Change the database schema without communicating with the team
-* Replace large files when a small change is enough
+- Push directly to `main`
+- Commit `.env` or `.env.local`
+- Commit passwords or API keys
+- Rewrite another team's module unnecessarily
+- Create duplicate shared utilities
+- Create another Prisma client
+- Change the database schema without communicating with the team
+- Replace large files when a small change is enough
 
 ### Always
 
-* Use one branch per task
-* Keep changes focused
-* Pull the latest `main` before starting new work
-* Test before creating a PR
-* Explain database changes in the PR
-* Reuse existing shared code
-* Follow the existing architecture
+- Use one branch per task
+- Keep changes focused
+- Pull the latest `main` before starting new work
+- Test before creating a PR
+- Explain database changes in the PR
+- Reuse existing shared code
+- Follow the existing architecture
 
 ---
 
@@ -574,7 +628,9 @@ Before creating a new utility, middleware, authentication helper, upload handler
 
 ```text
 apps/backend/src/middleware/
+
 apps/backend/src/lib/
+
 apps/backend/src/config/
 ```
 
@@ -616,9 +672,13 @@ Prefer:
 
 ```text
 bg-background
+
 text-foreground
+
 bg-primary
+
 text-muted-foreground
+
 border-border
 ```
 
@@ -626,7 +686,9 @@ instead of hardcoded colors such as:
 
 ```text
 bg-white
+
 text-gray-500
+
 #ffffff
 ```
 
@@ -652,7 +714,9 @@ For example:
 
 ```text
 packages/contracts/src/members/
+
 packages/contracts/src/transactions/
+
 packages/contracts/src/vouchers/
 ```
 
@@ -676,7 +740,7 @@ However:
 
 Before asking an LLM to modify code, tell it which part of the monorepo you are working on.
 
-## Recommended prompt
+## Recommended Prompt
 
 Copy this prompt and replace the placeholders:
 
@@ -686,28 +750,38 @@ You are helping me work on a college Inventory & Treasury Management System (TMS
 This is an npm workspace monorepo:
 
 tms/
+
 ├── apps/
 │   ├── backend/
 │   └── frontend/
+
 ├── packages/
 │   └── contracts/
+
 └── package.json
 
+
 Backend:
+
 - Node.js
 - Express.js
 - TypeScript
 - Prisma
 - MariaDB/MySQL
 
+
 Frontend:
+
 - Next.js App Router
 - TypeScript
 - Tailwind CSS
 - shadcn/ui
 
+
 Shared:
+
 - packages/contracts contains shared frontend/backend TypeScript contracts.
+
 
 Architecture rules:
 
@@ -732,14 +806,21 @@ Architecture rules:
 19. Do not change shared infrastructure unless it is actually necessary.
 20. Make the smallest clean change that solves the task.
 
+
 My team:
+
 [TEAM NUMBER]
 
+
 My module:
+
 [MODULE PATH]
 
+
 My task:
+
 [DESCRIBE TASK]
+
 
 Before modifying code:
 
@@ -748,8 +829,10 @@ Before modifying code:
 3. Explain any dependencies or shared files that are affected.
 4. Then implement the smallest necessary change.
 
+
 Do not redesign unrelated parts of the project.
 ```
+
 ## Prompt For Frontend
 
 If you're using an AI assistant to help write code for your module, give it this context so it doesn't produce code that clashes with the rest of the app:
@@ -757,12 +840,14 @@ If you're using an AI assistant to help write code for your module, give it this
 > This is a Next.js (App Router) + TypeScript + Tailwind + shadcn/ui project. I'm working only inside `src/modules/<my-team-name>/` and my route at `src/app/(dashboard)/<my-route>/page.tsx`. Don't modify `src/components/ui/`, `src/app/globals.css`, or `src/app/layout.tsx`. Use shadcn/ui components from `@/components/ui/*` and Tailwind theme tokens (`bg-background`, `text-foreground`, `bg-primary`, etc.) instead of hardcoded colors, so it matches the rest of the app in both light and dark mode. Default to Server Components; only add `"use client"` if the component needs `useState`, `useEffect`, or event handlers. Backend calls go through `@/lib/api-client.ts`.
 
 A few specific things worth telling it per task:
+
 - **When asking for a new page/component:** tell it which module folder it belongs in, and paste in `src/lib/api-client.ts` and `src/lib/utils.ts` so it reuses your existing patterns instead of inventing new ones.
+
 - **When asking for API calls:** tell it the backend route and expected request/response shape (or paste the relevant Express controller) so the types line up.
+
 - **When asking for styling:** tell it "match the Mira shadcn style, navy/gold accent, dense/professional look" — otherwise it'll default to generic purple SaaS styling.
+
 - **Always review AI-generated code before merging** — check it didn't touch shared files, didn't hardcode colors, and follows the `"use client"` rule above.
-
-
 
 ## Prompt For Backend
 
@@ -770,36 +855,50 @@ A few specific things worth telling it per task:
 You are working on the TMS backend.
 
 Project:
+
 Treasury Management System
 
+
 Stack:
+
 - Node.js
 - Express.js
 - TypeScript
 - MariaDB/MySQL
 - Prisma
 
+
 Architecture:
+
 Feature-based modular architecture.
 
+
 src/modules/
+
 ├── auth/
 ├── transactions/
 ├── vouchers/
 ├── calculations/
-├── members/
-├── fees/
+├── members-fees/
 ├── reports/
 └── notifications/
 
+
 Shared infrastructure:
+
 src/middleware/
+
 src/lib/
+
 src/config/
+
 src/app.ts
+
 src/server.ts
 
+
 Rules:
+
 1. Work only on the module I specify.
 2. Do not redesign the project architecture.
 3. Do not create duplicate Prisma clients.
@@ -816,13 +915,19 @@ Rules:
 14. If required information is missing, ask before making architectural changes.
 15. Follow the existing coding style.
 
+
 My team/module:
+
 [PUT YOUR MODULE HERE]
 
+
 Task:
+
 [DESCRIBE THE TASK HERE]
 
+
 Before changing code:
+
 - Inspect the relevant existing files.
 - Explain which files need to change.
 - Then provide the implementation.
@@ -838,7 +943,8 @@ with your team's module, for example:
 
 ```text
 My team/module:
-members
+
+members-fees
 ```
 
 ---
@@ -859,12 +965,19 @@ Ask the LLM:
 Before modifying prisma/schema.prisma:
 
 1. Inspect the existing schema.
+
 2. Identify the existing models related to this task.
+
 3. Explain whether an existing model can be reused.
+
 4. Explain the proposed schema changes.
+
 5. Explain affected relationships.
+
 6. Explain the migration that will be required.
+
 7. Identify which other modules could be affected.
+
 
 Do not modify the schema yet.
 ```
@@ -875,7 +988,7 @@ Database changes affect the entire class project and must be communicated with t
 
 # 16. Team Principle
 
-The project is organized so that eight teams can work independently while sharing one application, database, and set of contracts.
+The project is organized so that **seven teams** can work independently while sharing one application, database, and set of contracts.
 
 ```text
                     TMS MONOREPO
@@ -884,7 +997,7 @@ The project is organized so that eight teams can work independently while sharin
           │              │              │
        Frontend       Backend        Contracts
           │              │              │
-      8 feature       8 feature      Shared API
+      7 feature       7 feature      Shared API
        modules         modules         types
           │              │              │
           └──────────────┼──────────────┘

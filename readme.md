@@ -264,6 +264,15 @@ Example:
 
 ```env
 DATABASE_URL="mysql://tms:hello_world@localhost:3306/tms"
+JWT_SECRET="tms-dev-secret-change-me"
+PORT=5000
+```
+
+Optional — customize the seeded admin credentials:
+
+```env
+SEED_ADMIN_EMAIL=admin@vault.local
+SEED_ADMIN_PASSWORD=admin123
 ```
 
 Do not commit `.env` files or real production credentials.
@@ -320,9 +329,51 @@ Database/schema changes affect the entire project.
 
 **Always communicate Prisma schema changes with the team before merging them.**
 
+## Seed the Database
+
+Create the initial admin user:
+
+```bash
+npm run seed
+```
+
+Default credentials (override with `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` in `.env`):
+
+```text
+Email:    admin@vault.local
+Password: admin123
+```
+
 ---
 
 # 8. Start the Project
+
+## Setup Checklist (after cloning)
+
+Run these steps once after cloning the repository:
+
+```bash
+npm install                                    # 1. Install dependencies
+
+# 2. Create backend environment file
+cp apps/backend/.env.example apps/backend/.env # (or create apps/backend/.env manually)
+
+# 3. Create frontend environment file (optional)
+#    apps/frontend/.env.local with:
+#    NEXT_PUBLIC_API_URL=http://localhost:5000/api
+
+npm run prisma:generate                        # 4. Generate Prisma client
+npm run prisma:migrate                         # 5. Run database migrations
+npm run seed                                   # 6. Create the initial admin user
+npm run dev                                    # 7. Start frontend + backend
+```
+
+Login with the seeded admin:
+
+```text
+Email:    admin@vault.local
+Password: admin123
+```
 
 The project is managed from the **root monorepo**.
 

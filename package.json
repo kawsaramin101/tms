@@ -18,7 +18,10 @@
     "start:backend": "npm run start --workspace=tms-be",
     "start:frontend": "npm run start --workspace=tms-fe",
     "lint": "npm run lint:frontend",
-    "lint:frontend": "npm run lint --workspace=tms-fe"
+    "lint:frontend": "npm run lint --workspace=tms-fe",
+    "prisma:generate": "npm run prisma:generate --workspace=tms-be",
+    "prisma:migrate": "npm run prisma:migrate --workspace=tms-be",
+    "seed": "npm run seed --workspace=tms-be"
   },
   "workspaces": [
     "apps/*",

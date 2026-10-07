@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X, BookLock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/shared/mode-toggle";
+import { LogoutButton } from "@/modules/auth/components/logout-button";
+import { getToken } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -16,6 +18,11 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    Promise.resolve().then(() => setLoggedIn(getToken() !== null));
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -46,12 +53,18 @@ export function Navbar() {
         {/* Desktop actions */}
         <div className="hidden items-center gap-2 md:flex">
           <ModeToggle />
-          <Button variant="ghost" asChild>
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/register">Get started</Link>
-          </Button>
+          {loggedIn ? (
+            <LogoutButton />
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/login">Log in</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/register">Get started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile actions */}
@@ -88,16 +101,22 @@ export function Navbar() {
             </Link>
           ))}
           <div className="mt-2 flex flex-col gap-2 border-t border-border pt-3">
-            <Button variant="ghost" asChild className="justify-start">
-              <Link href="/login" onClick={() => setOpen(false)}>
-                Log in
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/register" onClick={() => setOpen(false)}>
-                Get started
-              </Link>
-            </Button>
+            {loggedIn ? (
+              <LogoutButton />
+            ) : (
+              <>
+                <Button variant="ghost" asChild className="justify-start">
+                  <Link href="/login" onClick={() => setOpen(false)}>
+                    Log in
+                  </Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/register" onClick={() => setOpen(false)}>
+                    Get started
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </nav>
       </div>

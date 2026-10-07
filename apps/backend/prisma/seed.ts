@@ -1,7 +1,12 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import "dotenv/config";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaMariaDb(
+  (process.env.DATABASE_URL ?? "").replace(/^mysql:\/\//, "mariadb://"),
+);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const email = process.env.SEED_ADMIN_EMAIL ?? "admin@vault.local";

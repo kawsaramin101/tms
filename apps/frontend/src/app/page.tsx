@@ -72,7 +72,7 @@ export default function HomePage() {
         <section className="mx-auto max-w-6xl px-4 pb-16 pt-20 sm:px-6 sm:pb-24 sm:pt-28">
           <div className="max-w-2xl">
             <h1 className="font-serif text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
-              One ledger for every rupee the class handles.
+              One ledger for every taka received and spent.
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
               Vault replaces the shared spreadsheet and the group-chat

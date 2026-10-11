@@ -130,6 +130,6 @@ export default function HomePage() {
           <span>Built by the class, for the class.</span>
         </div>
       </footer>
-      npm install lucide-react    </div>
+    </div>
   );
 }

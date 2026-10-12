@@ -4,7 +4,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
     "types": [
       "node"
@@ -21,6 +21,7 @@
     "skipLibCheck": true
   },
   "include": [
-    "src"
+    "src",
+    "prisma"
   ]
 }

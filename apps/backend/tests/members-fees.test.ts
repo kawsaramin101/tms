@@ -7,6 +7,9 @@ import { prisma } from "../src/lib/prisma.js";
 let server: Server;
 let baseUrl: string;
 let adminToken: string;
+let memberToken: string;
+let testUserId: number;
+
 let memberId: number;
 let feeTypeId: number;
 let memberFeeId: number;
@@ -34,6 +37,33 @@ before(async () => {
 
   assert.equal(loginRes.status, 200);
   adminToken = (await loginRes.json()).token;
+  const email = `mf-member-${Date.now()}@vault.local`;
+
+  const createUserRes = await fetch(`${baseUrl}/api/auth/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${adminToken}`,
+    },
+    body: JSON.stringify({
+      name: "Fee Test Member",
+      email,
+      password: "secret1",
+      role: "MEMBER",
+    }),
+  });
+
+  assert.equal(createUserRes.status, 201);
+  testUserId = (await createUserRes.json()).userId;
+
+  const memberLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password: "secret1" }),
+  });
+
+  assert.equal(memberLoginRes.status, 200);
+  memberToken = (await memberLoginRes.json()).token;
 });
 
 after(async () => {
@@ -49,7 +79,12 @@ after(async () => {
   if (memberId) {
     await prisma.member.deleteMany({ where: { memberId } });
   }
-
+  if (testUserId) {
+  await prisma.auditLog.deleteMany({
+    where: { OR: [{ userId: testUserId }, { recordId: testUserId }] },
+  });
+  await prisma.user.deleteMany({ where: { userId: testUserId } });
+}
   await new Promise<void>((resolve) => server.close(() => resolve()));
   await prisma.$disconnect();
 });
@@ -79,6 +114,21 @@ async function api(
 test("member-fees API rejects unauthenticated requests", async () => {
   const res = await fetch(`${baseUrl}/api/members-fees/members`);
   assert.equal(res.status, 401);
+});
+test("regular member cannot create a member record", async () => {
+  const result = await api(
+    "/members",
+    "POST",
+    {
+      memberCode: `FORBIDDEN-${Date.now()}`,
+      name: "Unauthorized Member",
+      memberType: "STUDENT",
+      status: "ACTIVE",
+    },
+    memberToken,
+  );
+
+  assert.equal(result.status, 403);
 });
 
 test("admin can create a member, fee type, fee and record a valid payment", async () => {

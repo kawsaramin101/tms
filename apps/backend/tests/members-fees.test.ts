@@ -178,3 +178,29 @@ test("duplicate member code is rejected", async () => {
     `Expected 400 or 409, received ${result.status}`,
   );
 });
+test("cancelled fee cannot receive a payment", async () => {
+  const cancelledFee = await api("/member-fees", "POST", {
+    memberId,
+    feeTypeId,
+    amountDue: 500,
+    discount: 0,
+    fine: 0,
+    dueDate: "2027-12-31",
+    status: "CANCELLED",
+  });
+
+  assert.equal(cancelledFee.status, 201);
+
+  const result = await api("/fee-payments", "POST", {
+    memberFeeId: cancelledFee.body.memberFeeId,
+    receiptNumber: `CANCEL-${Date.now()}`,
+    amount: 100,
+    paymentMethod: "CASH",
+  });
+
+  assert.equal(result.status, 409);
+
+  await prisma.memberFee.deleteMany({
+    where: { memberFeeId: cancelledFee.body.memberFeeId },
+  });
+});

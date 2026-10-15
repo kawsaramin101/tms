@@ -6,10 +6,16 @@ import {
   PAYMENT_METHODS,
 } from "@tms/contracts";
 
+const dateStringSchema = z
+  .string()
+  .refine((value) => !Number.isNaN(Date.parse(value)), {
+    message: "Invalid date",
+  });
+
 export const createMemberSchema = z.object({
-  memberCode: z.string().min(1, "Member code is required").max(50),
-  name: z.string().min(1, "Name is required").max(100),
-  memberType: z.string().min(1, "Member type is required").max(50),
+  memberCode: z.string().trim().min(1, "Member code is required").max(50),
+  name: z.string().trim().min(1, "Name is required").max(100),
+  memberType: z.string().trim().min(1, "Member type is required").max(50),
   department: z.string().max(100).optional(),
   phone: z.string().max(20).optional(),
   email: z.string().email().max(150).optional(),
@@ -19,9 +25,9 @@ export const createMemberSchema = z.object({
 
 export const updateMemberSchema = z
   .object({
-    memberCode: z.string().min(1).max(50).optional(),
-    name: z.string().min(1).max(100).optional(),
-    memberType: z.string().min(1).max(50).optional(),
+    memberCode: z.string().trim().min(1).max(50).optional(),
+    name: z.string().trim().min(1).max(100).optional(),
+    memberType: z.string().trim().min(1).max(50).optional(),
     department: z.string().max(100).nullable().optional(),
     phone: z.string().max(20).nullable().optional(),
     email: z.string().email().max(150).nullable().optional(),
@@ -45,7 +51,7 @@ export const memberSearchSchema = z.object({
 });
 
 export const createFeeTypeSchema = z.object({
-  feeName: z.string().min(1, "Fee name is required").max(100),
+  feeName: z.string().trim().min(1, "Fee name is required").max(100),
   defaultAmount: z.number().min(0, "Amount must be non-negative"),
   description: z.string().optional(),
   status: z.enum(FEE_TYPE_STATUSES).optional(),
@@ -53,7 +59,7 @@ export const createFeeTypeSchema = z.object({
 
 export const updateFeeTypeSchema = z
   .object({
-    feeName: z.string().min(1).max(100).optional(),
+    feeName: z.string().trim().min(1).max(100).optional(),
     defaultAmount: z.number().min(0).optional(),
     description: z.string().nullable().optional(),
     status: z.enum(FEE_TYPE_STATUSES).optional(),
@@ -72,7 +78,7 @@ export const createMemberFeeSchema = z.object({
   amountDue: z.number().min(0).optional(),
   discount: z.number().min(0).optional(),
   fine: z.number().min(0).optional(),
-  dueDate: z.string(),
+  dueDate: dateStringSchema,
   status: z.enum(FEE_STATUSES).optional(),
 });
 
@@ -81,7 +87,7 @@ export const updateMemberFeeSchema = z
     amountDue: z.number().min(0).optional(),
     discount: z.number().min(0).optional(),
     fine: z.number().min(0).optional(),
-    dueDate: z.string().optional(),
+    dueDate: dateStringSchema.optional(),
     status: z.enum(FEE_STATUSES).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {

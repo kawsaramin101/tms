@@ -43,6 +43,14 @@ async function writeAudit(
   });
 }
 
+function roundMoney(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function netAmountDue(amountDue: number, discount: number, fine: number): number {
+  return roundMoney(amountDue - discount + fine);
+}
+
 export async function listMembers(): Promise<MemberDto[]> {
   const members = await prisma.member.findMany({ orderBy: { memberId: "asc" } });
   return members.map(toMemberDto);
@@ -300,14 +308,21 @@ export async function createMemberFee(
   const feeType = await prisma.feeType.findUnique({ where: { feeTypeId: data.feeTypeId } });
   if (!feeType) throw new HttpError(404, "Fee type not found");
 
+  const amountDue = data.amountDue ?? Number(feeType.defaultAmount);
+  const discount = data.discount ?? 0;
+  const fine = data.fine ?? 0;
+  if (discount > amountDue + fine) {
+    throw new HttpError(400, "Discount cannot exceed the amount due plus fine");
+  }
+
   const memberFee = await prisma.memberFee.create({
     data: {
       memberId: data.memberId,
       feeTypeId: data.feeTypeId,
-      amountDue: data.amountDue ?? feeType.defaultAmount,
+      amountDue,
       amountPaid: 0,
-      discount: data.discount ?? 0,
-      fine: data.fine ?? 0,
+      discount,
+      fine,
       dueDate: new Date(data.dueDate),
       status: data.status ?? "PENDING",
     },
@@ -332,6 +347,16 @@ export async function updateMemberFee(
 ): Promise<MemberFeeDto> {
   const fee = await prisma.memberFee.findUnique({ where: { memberFeeId: id } });
   if (!fee) throw new HttpError(404, "Member fee not found");
+
+  const amountDue = data.amountDue ?? Number(fee.amountDue);
+  const discount = data.discount ?? Number(fee.discount);
+  const fine = data.fine ?? Number(fee.fine);
+  if (discount > amountDue + fine) {
+    throw new HttpError(400, "Discount cannot exceed the amount due plus fine");
+  }
+  if (netAmountDue(amountDue, discount, fine) < Number(fee.amountPaid)) {
+    throw new HttpError(400, "Amount due cannot be less than the amount already paid");
+  }
 
   const updated = await prisma.memberFee.update({
     where: { memberFeeId: id },
@@ -396,26 +421,40 @@ export async function createFeePayment(
   data: CreateFeePaymentRequest,
   ipAddress?: string,
 ): Promise<FeePaymentDto> {
-  const memberFee = await prisma.memberFee.findUnique({
-    where: { memberFeeId: data.memberFeeId },
-  });
-  if (!memberFee) throw new HttpError(404, "Member fee not found");
-
-  const receiptExists = await prisma.feePayment.findUnique({
-    where: { receiptNumber: data.receiptNumber },
-  });
-  if (receiptExists) throw new HttpError(409, "Receipt number already exists");
-
-  const newAmountPaid = Number(memberFee.amountPaid) + data.amount;
-  const totalDue = Number(memberFee.amountDue);
-  let newStatus: FeeStatus = memberFee.status as FeeStatus;
-  if (newAmountPaid >= totalDue) {
-    newStatus = "PAID";
-  } else if (newAmountPaid > 0) {
-    newStatus = "PARTIAL";
-  }
-
   const payment = await prisma.$transaction(async (tx) => {
+    const memberFee = await tx.memberFee.findUnique({
+      where: { memberFeeId: data.memberFeeId },
+    });
+    if (!memberFee) throw new HttpError(404, "Member fee not found");
+    if (memberFee.status === "CANCELLED") {
+      throw new HttpError(409, "Cannot record a payment for a cancelled fee");
+    }
+
+    const receiptExists = await tx.feePayment.findUnique({
+      where: { receiptNumber: data.receiptNumber },
+    });
+    if (receiptExists) throw new HttpError(409, "Receipt number already exists");
+
+    const amountPaid = Number(memberFee.amountPaid);
+    const totalDue = netAmountDue(
+      Number(memberFee.amountDue),
+      Number(memberFee.discount),
+      Number(memberFee.fine),
+    );
+    const outstanding = roundMoney(totalDue - amountPaid);
+    if (outstanding <= 0) {
+      throw new HttpError(409, "This fee has already been fully paid");
+    }
+    if (data.amount > outstanding) {
+      throw new HttpError(
+        400,
+        `Payment exceeds the outstanding balance of ${outstanding.toFixed(2)}`,
+      );
+    }
+
+    const newAmountPaid = roundMoney(amountPaid + data.amount);
+    const newStatus: FeeStatus = newAmountPaid >= totalDue ? "PAID" : "PARTIAL";
+
     const created = await tx.feePayment.create({
       data: {
         memberFeeId: data.memberFeeId,
@@ -429,13 +468,16 @@ export async function createFeePayment(
       },
     });
 
-    await tx.memberFee.update({
-      where: { memberFeeId: data.memberFeeId },
+    const updated = await tx.memberFee.updateMany({
+      where: { memberFeeId: data.memberFeeId, amountPaid: memberFee.amountPaid },
       data: {
         amountPaid: newAmountPaid,
         status: newStatus,
       },
     });
+    if (updated.count === 0) {
+      throw new HttpError(409, "Fee was updated concurrently, please retry");
+    }
 
     return created;
   });

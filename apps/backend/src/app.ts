@@ -3,7 +3,11 @@ import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes.js";
 import transactionRoutes from "./modules/transactions/transaction.routes.js";
 import accountRoutes from "./modules/accounts/account.routes.js";
-import { errorHandler, notFoundHandler } from "./middleware/error.middleware.js";
+import {
+  errorHandler,
+  notFoundHandler,
+} from "./middleware/error.middleware.js";
+import reportsRoutes from "./modules/reports/report.routes.js";
 
 const app = express();
 
@@ -19,6 +23,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 
 app.use("/api/accounts", accountRoutes);
+app.use("/api/reports", reportsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

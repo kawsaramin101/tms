@@ -100,7 +100,7 @@ export default function AccountsPage() {
               id="openingBalance"
               type="number"
               min="0"
-              step="10"
+              step="0.01"
               value={openingBalance}
               onChange={(e) => setOpeningBalance(e.target.value)}
             />

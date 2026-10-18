@@ -144,7 +144,7 @@ export default function EditTransactionPage() {
             id="amount"
             type="number"
             min="0.01"
-            step="10"
+            step="0.01"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             required

@@ -20,19 +20,11 @@ model User {
   createdTransactions          Transaction[]          @relation("TransactionCreatedBy")
   createdVouchers              Voucher[]              @relation("VoucherCreatedBy")
   approvedVouchers             Voucher[]              @relation("VoucherApprovedBy")
+  uploadedVoucherPhotos        VoucherPhoto[]         @relation("VoucherPhotoUploadedBy")
   createdInventoryTransactions InventoryTransaction[] @relation("InventoryTransactionCreatedBy")
   notifications                Notification[]
   auditLogs                    AuditLog[]
   createdBackups               Backup[]
-  feePaymentsReceived         FeePayment[]             @relation("FeePaymentReceivedBy")
-  createdTransactions         Transaction[]            @relation("TransactionCreatedBy")
-  createdVouchers             Voucher[]                @relation("VoucherCreatedBy")
-  approvedVouchers            Voucher[]                @relation("VoucherApprovedBy")
-  uploadedVoucherPhotos       VoucherPhoto[]           @relation("VoucherPhotoUploadedBy")
-  createdInventoryTransactions InventoryTransaction[]  @relation("InventoryTransactionCreatedBy")
-  notifications               Notification[]
-  auditLogs                   AuditLog[]
-  createdBackups              Backup[]
 
   @@map("users")
 }

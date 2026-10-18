@@ -20,6 +20,7 @@ model User {
   createdTransactions         Transaction[]            @relation("TransactionCreatedBy")
   createdVouchers             Voucher[]                @relation("VoucherCreatedBy")
   approvedVouchers            Voucher[]                @relation("VoucherApprovedBy")
+  uploadedVoucherPhotos       VoucherPhoto[]           @relation("VoucherPhotoUploadedBy")
   createdInventoryTransactions InventoryTransaction[]  @relation("InventoryTransactionCreatedBy")
   notifications               Notification[]
   auditLogs                   AuditLog[]
@@ -155,11 +156,31 @@ model Voucher {
   transaction Transaction @relation(fields: [transactionId], references: [transactionId], onDelete: Restrict, onUpdate: Cascade)
   creator     User        @relation("VoucherCreatedBy", fields: [createdBy], references: [userId], onDelete: Restrict, onUpdate: Cascade)
   approver    User?       @relation("VoucherApprovedBy", fields: [approvedBy], references: [userId], onDelete: Restrict, onUpdate: Cascade)
+  photos      VoucherPhoto[]
 
   @@index([transactionId])
   @@index([createdBy])
   @@index([approvedBy])
   @@map("vouchers")
+}
+
+model VoucherPhoto {
+  photoId    Int      @id @default(autoincrement()) @map("photo_id")
+  voucherId  Int      @map("voucher_id")
+  fileName   String   @map("file_name") @db.VarChar(255)
+  filePath   String   @map("file_path") @db.VarChar(500)
+  mimeType   String   @map("mime_type") @db.VarChar(100)
+  fileSize   Int      @map("file_size")
+  uploadedBy Int      @map("uploaded_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  voucher  Voucher @relation(fields: [voucherId], references: [voucherId], onDelete: Cascade, onUpdate: Cascade)
+  uploader User    @relation("VoucherPhotoUploadedBy", fields: [uploadedBy], references: [userId], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([voucherId])
+  @@index([uploadedBy])
+  @@map("voucher_photos")
 }
 
 model Category {

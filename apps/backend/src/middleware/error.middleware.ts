@@ -32,6 +32,15 @@ export function errorHandler(
     });
     return;
   }
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    (err as { code?: unknown }).code === "LIMIT_FILE_SIZE"
+  ) {
+    res.status(400).json({ message: "Photo exceeds the 5MB size limit" });
+    return;
+  }
   logger.error(err);
   res.status(500).json({ message: "Internal server error" });
 }

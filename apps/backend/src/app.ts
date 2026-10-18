@@ -3,13 +3,12 @@ import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes.js";
 import transactionRoutes from "./modules/transactions/transaction.routes.js";
 import accountRoutes from "./modules/accounts/account.routes.js";
+import reportsRoutes from "./modules/reports/report.routes.js";
+import memberRoutes from "./modules/members-fees/member.routes.js";
 import {
   errorHandler,
   notFoundHandler,
 } from "./middleware/error.middleware.js";
-import reportsRoutes from "./modules/reports/report.routes.js";
-import memberRoutes from "./modules/members-fees/member.routes.js";
-import { errorHandler, notFoundHandler } from "./middleware/error.middleware.js";
 
 const app = express();
 

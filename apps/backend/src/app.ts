@@ -8,6 +8,8 @@ import {
   notFoundHandler,
 } from "./middleware/error.middleware.js";
 import reportsRoutes from "./modules/reports/report.routes.js";
+import memberRoutes from "./modules/members-fees/member.routes.js";
+import { errorHandler, notFoundHandler } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -24,6 +26,8 @@ app.use("/api/transactions", transactionRoutes);
 
 app.use("/api/accounts", accountRoutes);
 app.use("/api/reports", reportsRoutes);
+
+app.use("/api/members-fees", memberRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

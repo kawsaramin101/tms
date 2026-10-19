@@ -9,6 +9,8 @@ import {
 } from "react";
 import type { FormEvent, ReactNode } from "react";
 
+import { getToken } from "@/lib/auth";
+
 import {
   createFeePayment,
   createFeeType,
@@ -53,18 +55,6 @@ const buttonClass =
 
 const secondaryClass =
   "rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted disabled:opacity-50";
-
-function getToken(): string {
-  if (typeof window === "undefined") return "";
-
-  return (
-    localStorage.getItem("accessToken") ||
-    localStorage.getItem("token") ||
-    sessionStorage.getItem("accessToken") ||
-    sessionStorage.getItem("token") ||
-    ""
-  );
-}
 
 function money(value: number): string {
   return new Intl.NumberFormat("en-BD", {
@@ -211,15 +201,24 @@ export default function MembersPage() {
   );
 
   async function perform(
-    action: () => Promise<unknown>,
+    action: (token: string) => Promise<unknown>,
     message: string,
   ) {
+    const token = getToken();
+
+    if (!token) {
+      setError(
+        "Authentication token not found. Please check the token key used by your login flow.",
+      );
+      return;
+    }
+
     setSaving(true);
     setError("");
     setNotice("");
 
     try {
-      await action();
+      await action(token);
       setNotice(message);
       await loadData();
     } catch (err) {
@@ -246,9 +245,9 @@ export default function MembersPage() {
       address: memberForm.address.trim() || undefined,
     };
 
-    await perform(async () => {
+    await perform(async (token) => {
       if (editingMember) {
-        await updateMember(getToken(), editingMember.memberId, {
+        await updateMember(token, editingMember.memberId, {
           memberCode: data.memberCode,
           name: data.name,
           memberType: data.memberType,
@@ -259,7 +258,7 @@ export default function MembersPage() {
         });
         setEditingMember(null);
       } else {
-        await createMember(getToken(), data);
+        await createMember(token, data);
       }
 
       setMemberForm({
@@ -293,16 +292,16 @@ export default function MembersPage() {
       return;
     }
 
-    await perform(async () => {
+    await perform(async (token) => {
       if (editingType) {
-        await updateFeeType(getToken(), editingType.feeTypeId, {
+        await updateFeeType(token, editingType.feeTypeId, {
           feeName: data.feeName,
           defaultAmount: data.defaultAmount,
           description: data.description,
         });
         setEditingType(null);
       } else {
-        await createFeeType(getToken(), data);
+        await createFeeType(token, data);
       }
 
       setTypeForm({
@@ -350,9 +349,9 @@ export default function MembersPage() {
       return;
     }
 
-    await perform(async () => {
+    await perform(async (token) => {
       if (editingFee) {
-        await updateMemberFee(getToken(), editingFee.memberFeeId, {
+        await updateMemberFee(token, editingFee.memberFeeId, {
           amountDue: data.amountDue,
           discount: data.discount,
           fine: data.fine,
@@ -360,7 +359,7 @@ export default function MembersPage() {
         });
         setEditingFee(null);
       } else {
-        await createMemberFee(getToken(), data);
+        await createMemberFee(token, data);
       }
 
       setFeeForm({
@@ -424,8 +423,8 @@ export default function MembersPage() {
       return;
     }
 
-    await perform(async () => {
-      await createFeePayment(getToken(), data);
+    await perform(async (token) => {
+      await createFeePayment(token, data);
 
       setPaymentForm({
         memberFeeId: "",
@@ -444,9 +443,9 @@ export default function MembersPage() {
       member.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
 
     await perform(
-      () =>
+      (token) =>
         updateMemberStatus(
-          getToken(),
+          token,
           member.memberId,
           { status },
         ),
@@ -486,9 +485,9 @@ export default function MembersPage() {
       item.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
 
     await perform(
-      () =>
+      (token) =>
         updateFeeTypeStatus(
-          getToken(),
+          token,
           item.feeTypeId,
           status,
         ),
@@ -547,7 +546,7 @@ export default function MembersPage() {
 
   async function changeMemberFeeStatus(fee: MemberFeeDto, status: FeeStatus) {
     await perform(
-      () => updateMemberFeeStatus(getToken(), fee.memberFeeId, status),
+      (token) => updateMemberFeeStatus(token, fee.memberFeeId, status),
       "Member fee status updated successfully.",
     );
   }
@@ -569,7 +568,7 @@ export default function MembersPage() {
       return;
     }
     await perform(
-      () => deleteMember(getToken(), member.memberId),
+      (token) => deleteMember(token, member.memberId),
       "Member deleted successfully.",
     );
   }
@@ -579,7 +578,7 @@ export default function MembersPage() {
       return;
     }
     await perform(
-      () => deleteMemberFee(getToken(), fee.memberFeeId),
+      (token) => deleteMemberFee(token, fee.memberFeeId),
       "Fee record deleted successfully.",
     );
   }

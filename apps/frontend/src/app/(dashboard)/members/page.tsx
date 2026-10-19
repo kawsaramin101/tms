@@ -18,8 +18,12 @@ import {
   listFeeTypes,
   listMembers,
   listMemberFees,
+  updateMember,
   updateMemberStatus,
+  updateFeeType,
   updateFeeTypeStatus,
+  updateMemberFee,
+  updateMemberFeeStatus,
 } from "@/modules/members-fees/api";
 
 import type {
@@ -33,6 +37,7 @@ import type {
   CreateFeePaymentRequest,
   MemberStatus,
   FeeTypeStatus,
+  FeeStatus,
   PaymentMethod,
 } from "@/modules/members-fees/types";
 
@@ -105,12 +110,14 @@ export default function MembersPage() {
     email: "",
     address: "",
   });
+  const [editingMember, setEditingMember] = useState<MemberDto | null>(null);
 
   const [typeForm, setTypeForm] = useState({
     feeName: "",
     defaultAmount: "",
     description: "",
   });
+  const [editingType, setEditingType] = useState<FeeTypeDto | null>(null);
 
   const [feeForm, setFeeForm] = useState({
     memberId: "",
@@ -120,6 +127,7 @@ export default function MembersPage() {
     fine: "0",
     dueDate: "",
   });
+  const [editingFee, setEditingFee] = useState<MemberFeeDto | null>(null);
 
   const [paymentForm, setPaymentForm] = useState({
     memberFeeId: "",
@@ -237,7 +245,20 @@ export default function MembersPage() {
     };
 
     await perform(async () => {
-      await createMember(getToken(), data);
+      if (editingMember) {
+        await updateMember(getToken(), editingMember.memberId, {
+          memberCode: data.memberCode,
+          name: data.name,
+          memberType: data.memberType,
+          department: data.department,
+          phone: data.phone,
+          email: data.email,
+          address: data.address,
+        });
+        setEditingMember(null);
+      } else {
+        await createMember(getToken(), data);
+      }
 
       setMemberForm({
         memberCode: "",
@@ -248,7 +269,7 @@ export default function MembersPage() {
         email: "",
         address: "",
       });
-    }, "Member created successfully.");
+    }, editingMember ? "Member updated successfully." : "Member created successfully.");
   }
 
   async function submitFeeType(
@@ -271,14 +292,23 @@ export default function MembersPage() {
     }
 
     await perform(async () => {
-      await createFeeType(getToken(), data);
+      if (editingType) {
+        await updateFeeType(getToken(), editingType.feeTypeId, {
+          feeName: data.feeName,
+          defaultAmount: data.defaultAmount,
+          description: data.description,
+        });
+        setEditingType(null);
+      } else {
+        await createFeeType(getToken(), data);
+      }
 
       setTypeForm({
         feeName: "",
         defaultAmount: "",
         description: "",
       });
-    }, "Fee type created successfully.");
+    }, editingType ? "Fee type updated successfully." : "Fee type created successfully.");
   }
 
   async function submitFee(
@@ -319,7 +349,17 @@ export default function MembersPage() {
     }
 
     await perform(async () => {
-      await createMemberFee(getToken(), data);
+      if (editingFee) {
+        await updateMemberFee(getToken(), editingFee.memberFeeId, {
+          amountDue: data.amountDue,
+          discount: data.discount,
+          fine: data.fine,
+          dueDate: data.dueDate,
+        });
+        setEditingFee(null);
+      } else {
+        await createMemberFee(getToken(), data);
+      }
 
       setFeeForm({
         memberId: "",
@@ -329,7 +369,7 @@ export default function MembersPage() {
         fine: "0",
         dueDate: "",
       });
-    }, "Member fee assigned successfully.");
+    }, editingFee ? "Member fee updated successfully." : "Member fee assigned successfully.");
   }
 
   async function submitPayment(
@@ -412,6 +452,33 @@ export default function MembersPage() {
     );
   }
 
+  function startEditMember(member: MemberDto) {
+    setEditingMember(member);
+    setMemberForm({
+      memberCode: member.memberCode,
+      name: member.name,
+      memberType: member.memberType,
+      department: member.department ?? "",
+      phone: member.phone ?? "",
+      email: member.email ?? "",
+      address: member.address ?? "",
+    });
+    setTab("members");
+  }
+
+  function cancelEditMember() {
+    setEditingMember(null);
+    setMemberForm({
+      memberCode: "",
+      name: "",
+      memberType: "",
+      department: "",
+      phone: "",
+      email: "",
+      address: "",
+    });
+  }
+
   async function changeFeeTypeStatus(item: FeeTypeDto) {
     const status: FeeTypeStatus =
       item.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
@@ -425,6 +492,25 @@ export default function MembersPage() {
         ),
       "Fee type status updated successfully.",
     );
+  }
+
+  function startEditType(item: FeeTypeDto) {
+    setEditingType(item);
+    setTypeForm({
+      feeName: item.feeName,
+      defaultAmount: String(item.defaultAmount),
+      description: item.description ?? "",
+    });
+    setTab("types");
+  }
+
+  function cancelEditType() {
+    setEditingType(null);
+    setTypeForm({
+      feeName: "",
+      defaultAmount: "",
+      description: "",
+    });
   }
 
   function memberName(id: number) {
@@ -442,6 +528,38 @@ export default function MembersPage() {
       feeTypes.find((item) => item.feeTypeId === id)
         ?.feeName ?? `Fee #${id}`
     );
+  }
+
+  function startEditFee(fee: MemberFeeDto) {
+    setEditingFee(fee);
+    setFeeForm({
+      memberId: String(fee.memberId),
+      feeTypeId: String(fee.feeTypeId),
+      amountDue: String(fee.amountDue),
+      discount: String(fee.discount),
+      fine: String(fee.fine),
+      dueDate: fee.dueDate.slice(0, 10),
+    });
+    setTab("fees");
+  }
+
+  async function changeMemberFeeStatus(fee: MemberFeeDto, status: FeeStatus) {
+    await perform(
+      () => updateMemberFeeStatus(getToken(), fee.memberFeeId, status),
+      "Member fee status updated successfully.",
+    );
+  }
+
+  function cancelEditFee() {
+    setEditingFee(null);
+    setFeeForm({
+      memberId: "",
+      feeTypeId: "",
+      amountDue: "",
+      discount: "0",
+      fine: "0",
+      dueDate: "",
+    });
   }
 
   const tabs: { id: Tab; label: string }[] = [
@@ -553,9 +671,9 @@ export default function MembersPage() {
                 onSubmit={submitMember}
                 className="rounded-xl border border-border p-4 sm:p-6"
               >
-                <h2 className="mb-4 text-lg font-semibold">
-                  Add New Member
-                </h2>
+                  <h2 className="mb-4 text-lg font-semibold">
+                    {editingMember ? "Edit Member" : "Add New Member"}
+                  </h2>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <Field label="Member Code *">
@@ -656,12 +774,24 @@ export default function MembersPage() {
                   </Field>
                 </div>
 
-                <button
-                  className={`${buttonClass} mt-4`}
-                  disabled={saving}
-                >
-                  {saving ? "Saving..." : "Add Member"}
-                </button>
+                <div className="mt-4 flex gap-2">
+                  <button
+                    className={buttonClass}
+                    disabled={saving}
+                  >
+                    {saving ? "Saving..." : editingMember ? "Update Member" : "Add Member"}
+                  </button>
+                  {editingMember && (
+                    <button
+                      type="button"
+                      className={secondaryClass}
+                      disabled={saving}
+                      onClick={cancelEditMember}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
 
               <section className="space-y-3">
@@ -725,18 +855,28 @@ export default function MembersPage() {
                           </td>
 
                           <td className="p-3">
-                            <button
-                              type="button"
-                              className={secondaryClass}
-                              disabled={saving}
-                              onClick={() =>
-                                void changeMemberStatus(member)
-                              }
-                            >
-                              {member.status === "ACTIVE"
-                                ? "Deactivate"
-                                : "Activate"}
-                            </button>
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                className={secondaryClass}
+                                disabled={saving}
+                                onClick={() => startEditMember(member)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className={secondaryClass}
+                                disabled={saving}
+                                onClick={() =>
+                                  void changeMemberStatus(member)
+                                }
+                              >
+                                {member.status === "ACTIVE"
+                                  ? "Deactivate"
+                                  : "Activate"}
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -764,9 +904,9 @@ export default function MembersPage() {
                 onSubmit={submitFeeType}
                 className="rounded-xl border border-border p-4 sm:p-6"
               >
-                <h2 className="mb-4 text-lg font-semibold">
-                  Create Fee Type
-                </h2>
+                  <h2 className="mb-4 text-lg font-semibold">
+                    {editingType ? "Edit Fee Type" : "Create Fee Type"}
+                  </h2>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <Field label="Fee Name *">
@@ -814,12 +954,24 @@ export default function MembersPage() {
                   </Field>
                 </div>
 
-                <button
-                  className={`${buttonClass} mt-4`}
-                  disabled={saving}
-                >
-                  {saving ? "Saving..." : "Create Fee Type"}
-                </button>
+                <div className="mt-4 flex gap-2">
+                  <button
+                    className={buttonClass}
+                    disabled={saving}
+                  >
+                    {saving ? "Saving..." : editingType ? "Update Fee Type" : "Create Fee Type"}
+                  </button>
+                  {editingType && (
+                    <button
+                      type="button"
+                      className={secondaryClass}
+                      disabled={saving}
+                      onClick={cancelEditType}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
 
               <div className="overflow-x-auto rounded-xl border border-border">
@@ -857,18 +1009,28 @@ export default function MembersPage() {
                         </td>
 
                         <td className="p-3">
-                          <button
-                            type="button"
-                            className={secondaryClass}
-                            disabled={saving}
-                            onClick={() =>
-                              void changeFeeTypeStatus(item)
-                            }
-                          >
-                            {item.status === "ACTIVE"
-                              ? "Deactivate"
-                              : "Activate"}
-                          </button>
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                className={secondaryClass}
+                                disabled={saving}
+                                onClick={() => startEditType(item)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className={secondaryClass}
+                                disabled={saving}
+                                onClick={() =>
+                                  void changeFeeTypeStatus(item)
+                                }
+                              >
+                                {item.status === "ACTIVE"
+                                  ? "Deactivate"
+                                  : "Activate"}
+                              </button>
+                            </div>
                         </td>
                       </tr>
                     ))}
@@ -895,9 +1057,9 @@ export default function MembersPage() {
                 onSubmit={submitFee}
                 className="rounded-xl border border-border p-4 sm:p-6"
               >
-                <h2 className="mb-4 text-lg font-semibold">
-                  Assign Fee to Member
-                </h2>
+                  <h2 className="mb-4 text-lg font-semibold">
+                    {editingFee ? "Edit Member Fee" : "Assign Fee to Member"}
+                  </h2>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <Field label="Member *">
@@ -1034,12 +1196,24 @@ export default function MembersPage() {
                   </Field>
                 </div>
 
-                <button
-                  className={`${buttonClass} mt-4`}
-                  disabled={saving}
-                >
-                  {saving ? "Saving..." : "Assign Fee"}
-                </button>
+                <div className="mt-4 flex gap-2">
+                  <button
+                    className={buttonClass}
+                    disabled={saving}
+                  >
+                    {saving ? "Saving..." : editingFee ? "Update Fee" : "Assign Fee"}
+                  </button>
+                  {editingFee && (
+                    <button
+                      type="button"
+                      className={secondaryClass}
+                      disabled={saving}
+                      onClick={cancelEditFee}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
 
               <div className="overflow-x-auto rounded-xl border border-border">
@@ -1053,6 +1227,7 @@ export default function MembersPage() {
                       <th className="p-3">Outstanding</th>
                       <th className="p-3">Due Date</th>
                       <th className="p-3">Status</th>
+                      <th className="p-3">Actions</th>
                     </tr>
                   </thead>
 
@@ -1098,6 +1273,35 @@ export default function MembersPage() {
                           <td className="p-3">
                             {fee.status}
                           </td>
+                          <td className="p-3">
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                className={secondaryClass}
+                                disabled={saving}
+                                onClick={() => startEditFee(fee)}
+                              >
+                                Edit
+                              </button>
+                              <select
+                                className={`${inputClass} w-auto`}
+                                value={fee.status}
+                                disabled={saving}
+                                onChange={(event) =>
+                                  void changeMemberFeeStatus(
+                                    fee,
+                                    event.target.value as FeeStatus,
+                                  )
+                                }
+                              >
+                                <option value="PENDING">PENDING</option>
+                                <option value="PARTIAL">PARTIAL</option>
+                                <option value="PAID">PAID</option>
+                                <option value="OVERDUE">OVERDUE</option>
+                                <option value="CANCELLED">CANCELLED</option>
+                              </select>
+                            </div>
+                          </td>
                         </tr>
                       );
                     })}
@@ -1105,7 +1309,7 @@ export default function MembersPage() {
                     {fees.length === 0 && (
                       <tr>
                         <td
-                          colSpan={7}
+                          colSpan={8}
                           className="p-6 text-center text-muted-foreground"
                         >
                           No member fees found.

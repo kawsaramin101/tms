@@ -130,3 +130,15 @@ export async function createFeePayment(req: Request, res: Response) {
   const body = createFeePaymentSchema.parse(req.body);
   res.status(201).json(await memberService.createFeePayment(actor.userId, body, clientIp(req)));
 }
+
+export async function deleteMember(req: Request, res: Response) {
+  const actor = requireUser(req);
+  await memberService.deleteMember(actor.userId, parseId(req.params.id), clientIp(req));
+  res.status(204).send();
+}
+
+export async function deleteMemberFee(req: Request, res: Response) {
+  const actor = requireUser(req);
+  await memberService.deleteMemberFee(actor.userId, parseId(req.params.id), clientIp(req));
+  res.status(204).send();
+}

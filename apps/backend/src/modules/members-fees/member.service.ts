@@ -493,3 +493,58 @@ export async function createFeePayment(
 
   return toFeePaymentDto(payment);
 }
+
+export async function deleteMember(
+  actorId: number,
+  id: number,
+  ipAddress?: string,
+): Promise<void> {
+  const member = await prisma.member.findUnique({
+    where: { memberId: id },
+    include: { memberFees: { select: { memberFeeId: true } } },
+  });
+  if (!member) throw new HttpError(404, "Member not found");
+  if (member.memberFees.length > 0) {
+    throw new HttpError(
+      409,
+      "Cannot delete member with associated fee records",
+    );
+  }
+
+  await prisma.member.delete({ where: { memberId: id } });
+  await writeAudit(
+    actorId,
+    "DELETE_MEMBER",
+    id,
+    `Deleted member ${member.memberCode}`,
+    ipAddress,
+  );
+}
+
+export async function deleteMemberFee(
+  actorId: number,
+  id: number,
+  ipAddress?: string,
+): Promise<void> {
+  const fee = await prisma.memberFee.findUnique({
+    where: { memberFeeId: id },
+    include: { feePayments: { select: { paymentId: true } } },
+  });
+  if (!fee) throw new HttpError(404, "Member fee not found");
+  if (fee.feePayments.length > 0) {
+    throw new HttpError(
+      409,
+      "Cannot delete fee record with associated payments",
+    );
+  }
+
+  await prisma.memberFee.delete({ where: { memberFeeId: id } });
+  await writeAudit(
+    actorId,
+    "DELETE_MEMBER_FEE",
+    id,
+    `Deleted member fee ${id}`,
+    ipAddress,
+    "member_fees",
+  );
+}

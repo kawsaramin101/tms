@@ -10,6 +10,7 @@ router.post("/members", authenticate, authorize("ADMIN", "TREASURER"), memberCon
 router.get("/members/:id", authenticate, memberController.getMember);
 router.patch("/members/:id", authenticate, authorize("ADMIN", "TREASURER"), memberController.updateMember);
 router.patch("/members/:id/status", authenticate, authorize("ADMIN", "TREASURER"), memberController.updateMemberStatus);
+router.delete("/members/:id", authenticate, authorize("ADMIN", "TREASURER"), memberController.deleteMember);
 
 router.get("/fee-types", authenticate, memberController.listFeeTypes);
 router.post("/fee-types", authenticate, authorize("ADMIN", "TREASURER"), memberController.createFeeType);
@@ -22,6 +23,7 @@ router.post("/member-fees", authenticate, authorize("ADMIN", "TREASURER"), membe
 router.get("/member-fees/:id", authenticate, memberController.getMemberFee);
 router.patch("/member-fees/:id", authenticate, authorize("ADMIN", "TREASURER"), memberController.updateMemberFee);
 router.patch("/member-fees/:id/status", authenticate, authorize("ADMIN", "TREASURER"), memberController.updateMemberFeeStatus);
+router.delete("/member-fees/:id", authenticate, authorize("ADMIN", "TREASURER"), memberController.deleteMemberFee);
 
 router.get("/fee-payments", authenticate, memberController.listFeePayments);
 router.post("/fee-payments", authenticate, authorize("ADMIN", "TREASURER"), memberController.createFeePayment);

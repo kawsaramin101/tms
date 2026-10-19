@@ -149,6 +149,20 @@ export function createMemberFee(
   });
 }
 
+export function deleteMember(token: string, id: number) {
+  return apiFetch<void>(`/members-fees/members/${id}`, {
+    method: "DELETE",
+    token,
+  });
+}
+
+export function deleteMemberFee(token: string, id: number) {
+  return apiFetch<void>(`/members-fees/member-fees/${id}`, {
+    method: "DELETE",
+    token,
+  });
+}
+
 export function updateMemberFee(
   token: string,
   id: number,

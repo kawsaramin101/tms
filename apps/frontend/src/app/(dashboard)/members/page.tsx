@@ -14,6 +14,8 @@ import {
   createFeeType,
   createMember,
   createMemberFee,
+  deleteMember,
+  deleteMemberFee,
   listFeePayments,
   listFeeTypes,
   listMembers,
@@ -562,6 +564,26 @@ export default function MembersPage() {
     });
   }
 
+  async function handleDeleteMember(member: MemberDto) {
+    if (!confirm(`Are you sure you want to delete member "${member.name}" (${member.memberCode})? This action cannot be undone.`)) {
+      return;
+    }
+    await perform(
+      () => deleteMember(getToken(), member.memberId),
+      "Member deleted successfully.",
+    );
+  }
+
+  async function handleDeleteFee(fee: MemberFeeDto) {
+    if (!confirm(`Are you sure you want to delete this fee record (Fee ID: ${fee.memberFeeId})? This action cannot be undone.`)) {
+      return;
+    }
+    await perform(
+      () => deleteMemberFee(getToken(), fee.memberFeeId),
+      "Fee record deleted successfully.",
+    );
+  }
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "members", label: "Members" },
     { id: "types", label: "Fee Types" },
@@ -875,6 +897,14 @@ export default function MembersPage() {
                                 {member.status === "ACTIVE"
                                   ? "Deactivate"
                                   : "Activate"}
+                              </button>
+                              <button
+                                type="button"
+                                className="rounded-lg border border-destructive px-3 py-2 text-sm text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                                disabled={saving}
+                                onClick={() => void handleDeleteMember(member)}
+                              >
+                                Delete
                               </button>
                             </div>
                           </td>
@@ -1300,6 +1330,14 @@ export default function MembersPage() {
                                 <option value="OVERDUE">OVERDUE</option>
                                 <option value="CANCELLED">CANCELLED</option>
                               </select>
+                              <button
+                                type="button"
+                                className="rounded-lg border border-destructive px-3 py-2 text-sm text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                                disabled={saving}
+                                onClick={() => void handleDeleteFee(fee)}
+                              >
+                                Delete
+                              </button>
                             </div>
                           </td>
                         </tr>

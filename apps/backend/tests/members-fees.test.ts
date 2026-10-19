@@ -254,3 +254,86 @@ test("cancelled fee cannot receive a payment", async () => {
     where: { memberFeeId: cancelledFee.body.memberFeeId },
   });
 });
+
+test("regular member cannot delete a member or fee record", async () => {
+  const memberRes = await api(
+    "/members",
+    "DELETE",
+    undefined,
+    memberToken,
+  );
+  assert.equal(memberRes.status, 403);
+
+  const feeRes = await api(
+    "/member-fees",
+    "DELETE",
+    undefined,
+    memberToken,
+  );
+  assert.equal(feeRes.status, 403);
+});
+
+test("admin can delete a member that has no fee records", async () => {
+  const deleteCode = `DEL-${Date.now()}`;
+  const created = await api("/members", "POST", {
+    memberCode: deleteCode,
+    name: "Deletable Member",
+    memberType: "STUDENT",
+    status: "ACTIVE",
+  });
+  assert.equal(created.status, 201);
+  const id = created.body.memberId;
+
+  const result = await api(`/members/${id}`, "DELETE");
+  assert.equal(result.status, 204);
+
+  const gone = await api(`/members/${id}`);
+  assert.equal(gone.status, 404);
+
+  await prisma.member.deleteMany({ where: { memberId: id } });
+});
+
+test("member with fee records cannot be deleted", async () => {
+  assert.ok(memberId, "Member should exist from earlier test");
+
+  const result = await api(`/members/${memberId}`, "DELETE");
+  assert.equal(result.status, 409);
+});
+
+test("fee record with payments cannot be deleted", async () => {
+  assert.ok(memberFeeId, "Fee should exist from earlier test");
+
+  const result = await api(`/member-fees/${memberFeeId}`, "DELETE");
+  assert.equal(result.status, 409);
+});
+
+test("admin can delete a fee record that has no payments", async () => {
+  const fee = await api("/member-fees", "POST", {
+    memberId,
+    feeTypeId,
+    amountDue: 250,
+    discount: 0,
+    fine: 0,
+    dueDate: "2027-12-31",
+    status: "PENDING",
+  });
+  assert.equal(fee.status, 201);
+
+  const result = await api(`/member-fees/${fee.body.memberFeeId}`, "DELETE");
+  assert.equal(result.status, 204);
+
+  const gone = await api(`/member-fees/${fee.body.memberFeeId}`);
+  assert.equal(gone.status, 404);
+
+  await prisma.memberFee.deleteMany({
+    where: { memberFeeId: fee.body.memberFeeId },
+  });
+});
+
+test("deleting a missing member or fee returns 404", async () => {
+  const memberRes = await api("/members/99999999", "DELETE");
+  assert.equal(memberRes.status, 404);
+
+  const feeRes = await api("/member-fees/99999999", "DELETE");
+  assert.equal(feeRes.status, 404);
+});

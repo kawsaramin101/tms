@@ -75,9 +75,17 @@ export default function TransactionsPage() {
         <h1 className="font-serif text-2xl font-semibold text-foreground">
           Transactions
         </h1>
-        <Link href="/transactions/new" className={buttonVariants()}>
-          New transaction
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/calculation/financial-summary"
+            className={buttonVariants()}
+          >
+            Financial summary
+          </Link>
+          <Link href="/transactions/new" className={buttonVariants()}>
+            New transaction
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

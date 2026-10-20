@@ -81,3 +81,57 @@ export interface VoucherListResponse {
     totalPages: number;
   };
 }
+
+export const PAYMENT_STATUSES = [
+  "Unpaid",
+  "Partially Settled",
+  "Paid",
+  "Cancelled",
+] as const;
+
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+export interface VoucherPaymentDto {
+  transactionId: number;
+  transactionNumber: string;
+  amount: number;
+  transactionType: string;
+  status: string;
+  transactionDate: string;
+  referenceNumber: string | null;
+  description: string | null;
+  createdBy: number;
+  creatorName: string | null;
+  createdAt: string;
+}
+
+export interface VoucherPaymentSummaryDto {
+  voucherId: number;
+  voucherNumber: string;
+  voucherType: string;
+  voucherStatus: string;
+  amount: number;
+  paidAmount: number;
+  outstandingAmount: number;
+  paymentStatus: PaymentStatus;
+  payments: VoucherPaymentDto[];
+}
+
+export interface VoucherPaymentTotalsDto {
+  voucherId: number;
+  voucherType: string;
+  voucherStatus: string;
+  amount: number;
+  paidAmount: number;
+  outstandingAmount: number;
+  paymentStatus: PaymentStatus;
+}
+
+export interface CreateVoucherPaymentRequest {
+  accountId: number;
+  amount: number;
+  transactionDate?: string | undefined;
+  referenceNumber?: string | undefined;
+  description?: string | undefined;
+}
+

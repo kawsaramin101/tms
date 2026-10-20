@@ -4,6 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { getToken } from "@/lib/auth";
 import { createAccount, listAccounts } from "@/modules/accounts/api";
 import type { AccountDto } from "@/modules/accounts/types";
+import {
+  fetchAccountBalances,
+  type AccountBalancesResult,
+} from "@/modules/calculation/api";
+import type { AccountBalanceRow } from "@/modules/calculation/types";
 import { formatCurrency } from "@/modules/transactions/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +24,10 @@ import {
 
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<AccountDto[]>([]);
+  const [balances, setBalances] = useState<Record<number, AccountBalanceRow>>(
+    {},
+  );
+  const [balanceError, setBalanceError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [accountName, setAccountName] = useState("");
   const [accountType, setAccountType] = useState("CASH");
@@ -29,7 +38,23 @@ export default function AccountsPage() {
     const token = getToken();
     if (!token) return;
     listAccounts(token)
-      .then(setAccounts)
+      .then(async (rows) => {
+        setAccounts(rows);
+        const result: AccountBalancesResult = await fetchAccountBalances(
+          token,
+          rows,
+        );
+        setBalances(
+          Object.fromEntries(
+            result.rows.map((row) => [row.accountId, row]),
+          ),
+        );
+        setBalanceError(
+          result.failedCount > 0
+            ? "Remaining balances for some accounts could not be loaded."
+            : null,
+        );
+      })
       .catch((err) => setError(err.message));
   }, []);
 
@@ -113,6 +138,10 @@ export default function AccountsPage() {
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
+      {balanceError ? (
+        <p className="text-sm text-destructive">{balanceError}</p>
+      ) : null}
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -120,7 +149,7 @@ export default function AccountsPage() {
             <TableHead>Type</TableHead>
             <TableHead>Account #</TableHead>
             <TableHead>Opening balance</TableHead>
-            <TableHead>Current balance</TableHead>
+            <TableHead>Remaining balance</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -131,12 +160,18 @@ export default function AccountsPage() {
               <TableCell>{a.accountType}</TableCell>
               <TableCell>{a.accountNumber ?? "—"}</TableCell>
               <TableCell>{formatCurrency(a.openingBalance)}</TableCell>
-              <TableCell>{formatCurrency(a.currentBalance)}</TableCell>
+              <TableCell>
+                {balances[a.accountId]
+                  ? formatCurrency(balances[a.accountId].remainingBalance)
+                  : "—"}
+              </TableCell>
               <TableCell>{a.status}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      
     </div>
   );
 }

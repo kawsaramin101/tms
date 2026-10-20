@@ -58,9 +58,17 @@ export default function VouchersPage() {
         <h1 className="font-serif text-2xl font-semibold text-foreground">
           Vouchers
         </h1>
-        <Link href="/vouchers/new" className={buttonVariants()}>
-          New voucher
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/calculation/reports"
+            className={buttonVariants()}
+          >
+            Voucher Tracking
+          </Link>
+          <Link href="/vouchers/new" className={buttonVariants()}>
+            New voucher
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

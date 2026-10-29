@@ -12,6 +12,5 @@
 # Non-Functional Requirements
 
 - Accuracy and Data Integrity
-- Security and Access Control
 - Performance and Reliability
 - Usability and Maintainability

@@ -10,7 +10,7 @@ import {
   getFinalProgrammeReportController,
   createProgrammeController,
   createBudgetController,
-} from "./report.controller";
+} from "./report.controller.js";
 
 const router = Router();
 

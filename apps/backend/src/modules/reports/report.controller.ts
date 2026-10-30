@@ -10,7 +10,7 @@ import {
   getFinalProgrammeReport,
   createProgramme,
   createBudget,
-} from "./report.service";
+} from "./report.service.js";
 
 export const getTransactionVoucherStatusReportController = async (
   _req: Request,

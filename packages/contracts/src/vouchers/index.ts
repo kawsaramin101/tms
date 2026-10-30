@@ -1,1 +1,1 @@
-export * from "./voucher.types";
+export * from "./voucher.types.js";

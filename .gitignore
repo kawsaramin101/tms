@@ -10,3 +10,5 @@ apps/frontend/.env.local
 apps/backend/uploads/
 .neon
 .env.local
+
+packages/contracts/dist/

@@ -7,7 +7,9 @@ const databaseUrl = new URL(
   env.databaseUrl.replace(/^mysql:\/\//, "mariadb://")
 );
 
-const adapter = new PrismaMariaDb({
+const caBase64 = process.env.AIVEN_CA_CERT_BASE64;
+
+const adapterConfig = {
   host: databaseUrl.hostname,
   port: Number(databaseUrl.port || 3306),
   user: decodeURIComponent(databaseUrl.username),
@@ -16,8 +18,12 @@ const adapter = new PrismaMariaDb({
   connectionLimit: 5,
   acquireTimeout: 10000,
   connectTimeout: 10000,
-  ssl: true,
-});
+  ...(caBase64
+    ? { ssl: { ca: Buffer.from(caBase64, "base64") } }
+    : {}),
+};
+
+const adapter = new PrismaMariaDb(adapterConfig);
 
 const basePrisma = new PrismaClient({ adapter });
 

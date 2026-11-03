@@ -1,0 +1,39 @@
+{
+  "name": "tms",
+  "version": "1.0.0",
+  "private": true,
+  "allowScripts": {
+    "@prisma/engines": true,
+    "esbuild": true,
+    "prisma": true,
+    "unrs-resolver": true
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=tms-be",
+    "dev:frontend": "npm run dev --workspace=tms-fe",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:contracts": "npm run build --workspace=@tms/contracts",
+    "build:backend": "npm run build:contracts && npm run build --workspace=tms-be",
+    "build:frontend": "npm run build --workspace=tms-fe",
+    "start:backend": "npm run start --workspace=tms-be",
+    "start:frontend": "npm run start --workspace=tms-fe",
+    "lint": "npm run lint:frontend",
+    "lint:frontend": "npm run lint --workspace=tms-fe",
+    "prisma:generate": "npm run prisma:generate --workspace=tms-be",
+    "prisma:migrate": "npm run prisma:migrate --workspace=tms-be",
+    "seed": "npm run seed --workspace=tms-be"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "concurrently": "^10.0.5"
+  },
+  "dependencies": {
+    "@neon/config": "^1.9.6",
+    "@neon/env": "^1.6.6"
+  }
+}

@@ -6,6 +6,7 @@ import { Menu, X, BookLock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/shared/mode-toggle";
 import { LogoutButton } from "@/modules/auth/components/logout-button";
+import { NotificationBadgeButton } from "@/modules/notifications/components/notification-badge-button";
 import { getToken } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ const NAV_LINKS = [
   { label: "Vouchers", href: "/vouchers" },
   { label: "Members", href: "/members" },
   { label: "Reports", href: "/reports" },
+  { label: "Notifications", href: "/notifications" },
 ];
 
 export function Navbar() {
@@ -53,6 +55,7 @@ export function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-2 md:flex">
+          {loggedIn && <NotificationBadgeButton />}
           <ModeToggle />
           {loggedIn ? (
             <LogoutButton />
@@ -70,6 +73,7 @@ export function Navbar() {
 
         {/* Mobile actions */}
         <div className="flex items-center gap-1 md:hidden">
+          {loggedIn && <NotificationBadgeButton />}
           <ModeToggle />
           <button
             type="button"

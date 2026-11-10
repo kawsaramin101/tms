@@ -4,3 +4,4 @@ export * from "./accounts/index.js";
 export * from "./reports/index.js";
 export * from "./members-fees/index.js";
 export * from "./vouchers/index.js";
+export * from "./notifications/index.js";

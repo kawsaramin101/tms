@@ -1,12 +1,19 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import type { Server } from "node:http";
-import app from "../src/app.js";
-import { toNotificationDto } from "../src/modules/notifications/notification.types.js";
-import {
-  getUserPreferences,
-  updateUserPreferences,
-} from "../src/modules/notifications/notification.service.js";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
+// Point preference storage at a throwaway file so tests never touch the real data file.
+const prefsDir = mkdtempSync(path.join(tmpdir(), "tms-notif-prefs-"));
+process.env.NOTIFICATION_PREFS_FILE = path.join(prefsDir, "notification-preferences.json");
+
+const { default: app } = await import("../src/app.js");
+const { toNotificationDto } = await import("../src/modules/notifications/notification.types.js");
+const { getUserPreferences, updateUserPreferences } = await import(
+  "../src/modules/notifications/notification.service.js"
+);
 
 let server: Server;
 let baseUrl: string;
@@ -24,6 +31,7 @@ before(async () => {
 
 after(async () => {
   await new Promise<void>((resolve) => server.close(() => resolve()));
+  rmSync(prefsDir, { recursive: true, force: true });
 });
 
 test("notifications API rejects unauthenticated requests", async () => {

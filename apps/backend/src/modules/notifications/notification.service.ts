@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { prisma } from "../../lib/prisma.js";
 import { HttpError } from "../../middleware/error.middleware.js";
 import { toNotificationDto } from "./notification.types.js";
@@ -14,9 +13,14 @@ import type {
   UpdateNotificationPreferencesRequest,
 } from "@tms/contracts";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PREFS_FILE = path.resolve(__dirname, "../../../data/notification-preferences.json");
+// Resolved at call time (not import time) so NOTIFICATION_PREFS_FILE can be overridden, e.g. in tests.
+// Default is relative to the backend's working directory (apps/backend), which is the same
+// for `tsx` in dev and `node dist/src/server.js` in production.
+function getPrefsFile(): string {
+  return process.env.NOTIFICATION_PREFS_FILE
+    ? path.resolve(process.env.NOTIFICATION_PREFS_FILE)
+    : path.resolve(process.cwd(), "data/notification-preferences.json");
+}
 
 // In-memory cache + file storage for user notification preferences (FR-06 & FR-09)
 let preferencesCache: Record<number, NotificationPreferencesDto> | null = null;
@@ -24,7 +28,7 @@ let preferencesCache: Record<number, NotificationPreferencesDto> | null = null;
 async function loadPreferences(): Promise<Record<number, NotificationPreferencesDto>> {
   if (preferencesCache) return preferencesCache;
   try {
-    const raw = await fs.readFile(PREFS_FILE, "utf-8");
+    const raw = await fs.readFile(getPrefsFile(), "utf-8");
     preferencesCache = JSON.parse(raw);
   } catch {
     preferencesCache = {};
@@ -35,8 +39,9 @@ async function loadPreferences(): Promise<Record<number, NotificationPreferences
 async function savePreferences(): Promise<void> {
   if (!preferencesCache) return;
   try {
-    await fs.mkdir(path.dirname(PREFS_FILE), { recursive: true });
-    await fs.writeFile(PREFS_FILE, JSON.stringify(preferencesCache, null, 2), "utf-8");
+    const file = getPrefsFile();
+    await fs.mkdir(path.dirname(file), { recursive: true });
+    await fs.writeFile(file, JSON.stringify(preferencesCache, null, 2), "utf-8");
   } catch (err) {
     console.error("Failed to save notification preferences to disk:", err);
   }
@@ -369,7 +374,9 @@ export async function checkAndGenerateReminders(): Promise<ReminderCheckResultDt
       ? `Overdue Fee: ${fee.member.name} (${fee.feeType.feeName})`
       : `Payment Reminder: ${fee.member.name} (${fee.feeType.feeName})`;
 
-    const remaining = Number(fee.amountDue) - Number(fee.amountPaid);
+    // Same formula as member.service.ts netAmountDue(): amountDue - discount + fine, minus what is already paid
+    const netDue = Number(fee.amountDue) - Number(fee.discount) + Number(fee.fine);
+    const remaining = Math.max(0, netDue - Number(fee.amountPaid));
     const formattedDue = new Date(fee.dueDate).toLocaleDateString();
     const message = `Member ${fee.member.name} (${fee.member.memberCode}) has a ${fee.feeType.feeName} fee of $${remaining.toFixed(2)} due on ${formattedDue}. Status: ${fee.status}.`;
 

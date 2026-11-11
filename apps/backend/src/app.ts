@@ -5,12 +5,13 @@ import transactionRoutes from "./modules/transactions/transaction.routes.js";
 import accountRoutes from "./modules/accounts/account.routes.js";
 import reportsRoutes from "./modules/reports/report.routes.js";
 import memberRoutes from "./modules/members-fees/member.routes.js";
+import voucherRoutes from "./modules/vouchers/voucher.routes.js";
+import calculationRoutes from "./modules/calculations/calculation.routes.js";
+import notificationRoutes from "./modules/notifications/notification.routes.js";
 import {
   errorHandler,
   notFoundHandler,
 } from "./middleware/error.middleware.js";
-import voucherRoutes from "./modules/vouchers/voucher.routes.js";
-import calculationRoutes from "./modules/calculations/calculation.routes.js";
 
 const app = express();
 
@@ -33,6 +34,8 @@ app.use("/api/members-fees", memberRoutes);
 app.use("/api/vouchers", voucherRoutes);
 
 app.use("/api/calculations", calculationRoutes);
+
+app.use("/api/notifications", notificationRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

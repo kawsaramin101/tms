@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 import { HttpError } from "../../middleware/error.middleware.js";
+import { createNotification } from "../notifications/notification.service.js";
 import {
   toMemberDto,
   toFeeTypeDto,
@@ -490,6 +491,15 @@ export async function createFeePayment(
     ipAddress,
     "fee_payments",
   );
+
+  createNotification(
+    {
+      title: `Payment Received: ${payment.receiptNumber}`,
+      message: `A payment of $${Number(payment.amount).toFixed(2)} was received via ${payment.paymentMethod} (Receipt: ${payment.receiptNumber}).`,
+      notificationType: "PAYMENT_REMINDER",
+    },
+    actorId,
+  ).catch((err) => console.error("Payment notification error:", err));
 
   return toFeePaymentDto(payment);
 }

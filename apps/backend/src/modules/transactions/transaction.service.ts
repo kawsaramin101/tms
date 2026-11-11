@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { HttpError } from "../../middleware/error.middleware.js";
 import { toTransactionDto } from "./transaction.types.js";
+import { notifyTransactionCreated } from "../notifications/notification.service.js";
 import type {
   AccountBalance,
   CreateTransactionRequest,
@@ -144,6 +145,13 @@ export async function createTransaction(
     created.transactionId,
     `Created transaction ${created.transactionNumber}`,
     ipAddress,
+  );
+  notifyTransactionCreated(
+    created.transactionId,
+    created.transactionNumber,
+    created.transactionType,
+    Number(created.amount),
+    actorId,
   );
   return toTransactionDto(created);
 }

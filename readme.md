@@ -248,6 +248,20 @@ tms/
 
 rather than separate lockfiles and dependency installations for each workspace.
 
+## Build Shared Contracts
+
+The backend imports `@tms/contracts`, which resolves to compiled files in `packages/contracts/dist`. On a fresh clone, or whenever that build output is missing, build the contracts before starting development:
+
+```bash
+npm install
+npm run build:contracts
+npm run dev
+```
+
+`npm run build:contracts` compiles the `packages/contracts` workspace and generates the `packages/contracts/dist` directory required by the backend.
+
+Rebuild contracts after deleting `packages/contracts/dist` or when its build output is unavailable. You do not need to rebuild them before every server restart.
+
 ---
 
 # 6. Environment Variables
@@ -354,18 +368,19 @@ Run these steps once after cloning the repository:
 
 ```bash
 npm install                                    # 1. Install dependencies
+npm run build:contracts                        # 2. Build shared contracts
 
-# 2. Create backend environment file
+# 3. Create backend environment file
 cp apps/backend/.env.example apps/backend/.env # (or create apps/backend/.env manually)
 
-# 3. Create frontend environment file (optional)
+# 4. Create frontend environment file (optional)
 #    apps/frontend/.env.local with:
 #    NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
-npm run prisma:generate                        # 4. Generate Prisma client
-npm run prisma:migrate                         # 5. Run database migrations
-npm run seed                                   # 6. Create the initial admin user
-npm run dev                                    # 7. Start frontend + backend
+npm run prisma:generate                        # 5. Generate Prisma client
+npm run prisma:migrate                         # 6. Run database migrations
+npm run seed                                   # 7. Create the initial admin user
+npm run dev                                    # 8. Start frontend + backend
 ```
 
 Login with the seeded admin:
@@ -401,6 +416,22 @@ npm run dev:backend
 ```bash
 npm run dev:frontend
 ```
+
+## Troubleshooting
+
+If the backend reports:
+
+```text
+ERR_MODULE_NOT_FOUND: Cannot find module '@tms/contracts/dist/index.js'
+```
+
+the shared contracts have not been built. Run:
+
+```bash
+npm run build:contracts
+```
+
+Then restart the development server.
 
 ---
 

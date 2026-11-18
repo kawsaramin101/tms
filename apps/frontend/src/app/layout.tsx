@@ -28,6 +28,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
       className={`${manrope.variable} ${fraunces.variable}`}
     >
       <body className="font-sans antialiased">

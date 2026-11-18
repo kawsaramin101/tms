@@ -24,7 +24,7 @@ export function LoginForm() {
     try {
       const result = await login(email, password);
       setToken(result.token);
-      const next = searchParams.get("next") ?? "/transactions";
+      const next = searchParams.get("next") ?? "/";
       router.push(next);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Login failed");

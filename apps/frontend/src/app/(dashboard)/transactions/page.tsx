@@ -110,7 +110,7 @@ export default function TransactionsPage() {
               setType(e.target.value);
               setPage(1);
             }}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <option value="">All</option>
             {TRANSACTION_TYPES.map((t) => (
@@ -129,7 +129,7 @@ export default function TransactionsPage() {
               setStatus(e.target.value);
               setPage(1);
             }}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <option value="">All</option>
             {TRANSACTION_STATUSES.map((s) => (
@@ -171,7 +171,7 @@ export default function TransactionsPage() {
             onChange={(e) =>
               setSortBy(e.target.value as "date" | "amount" | "type")
             }
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <option value="date">Date</option>
             <option value="amount">Amount</option>
@@ -184,7 +184,7 @@ export default function TransactionsPage() {
             id="order"
             value={order}
             onChange={(e) => setOrder(e.target.value as "asc" | "desc")}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <option value="desc">Descending</option>
             <option value="asc">Ascending</option>

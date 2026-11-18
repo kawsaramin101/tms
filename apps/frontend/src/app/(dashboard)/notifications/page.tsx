@@ -319,7 +319,7 @@ export default function NotificationsPage() {
               setSelectedType(e.target.value);
               setPage(1);
             }}
-            className="rounded-md border border-input bg-background px-3 py-2 text-xs shadow-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <option value="">All Types</option>
             <option value="PAYMENT_REMINDER">Payment Reminders</option>
@@ -336,7 +336,7 @@ export default function NotificationsPage() {
               setFilterRead(e.target.value);
               setPage(1);
             }}
-            className="rounded-md border border-input bg-background px-3 py-2 text-xs shadow-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <option value="">All Status</option>
             <option value="false">Unread Only</option>

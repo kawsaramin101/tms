@@ -374,7 +374,7 @@ export default function VoucherDetailPage({
           <select
             value={newStatus}
             onChange={(e) => setNewStatus(e.target.value as VoucherStatus)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             {VOUCHER_STATUSES.map((s) => (
               <option key={s} value={s}>
@@ -394,7 +394,7 @@ export default function VoucherDetailPage({
           <select
             value={linkNumber}
             onChange={(e) => setLinkNumber(e.target.value)}
-            className="h-9 max-w-64 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full max-w-64 rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <option value="">Select a transaction</option>
             {linkOptions.map((t) => (

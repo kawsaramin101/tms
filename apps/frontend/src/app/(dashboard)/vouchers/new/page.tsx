@@ -88,7 +88,7 @@ export default function NewVoucherPage() {
             id="transaction"
             value={transactionNumber}
             onChange={(e) => setTransactionNumber(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
             required
           >
             <option value="">Select a transaction</option>
@@ -105,7 +105,7 @@ export default function NewVoucherPage() {
             id="type"
             value={voucherType}
             onChange={(e) => setVoucherType(e.target.value as VoucherType)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             {VOUCHER_TYPES.map((t) => (
               <option key={t} value={t}>
@@ -140,7 +140,7 @@ export default function NewVoucherPage() {
             id="status"
             value={status}
             onChange={(e) => setStatus(e.target.value as VoucherStatus)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             {VOUCHER_STATUSES.map((s) => (
               <option key={s} value={s}>

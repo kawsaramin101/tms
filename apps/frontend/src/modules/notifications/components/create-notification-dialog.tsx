@@ -102,7 +102,7 @@ export function CreateNotificationDialog({ open, onClose, onCreated }: Props) {
               id="notification-type"
               value={notificationType}
               onChange={(e) => setNotificationType(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-ring"
+              className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
             >
               <option value="SYSTEM">System Announcement</option>
               <option value="PAYMENT_REMINDER">Payment Reminder</option>
@@ -133,7 +133,7 @@ export function CreateNotificationDialog({ open, onClose, onCreated }: Props) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-ring"
+              className="w-full rounded-md border border-input bg-transparent px-2.5 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
             />
           </div>
 

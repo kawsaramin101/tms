@@ -261,7 +261,7 @@ export default function TrackingDashboardPage() {
             id="dash-type"
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <option value="">All</option>
             <option value="PAYMENT">Payment</option>
@@ -274,7 +274,7 @@ export default function TrackingDashboardPage() {
             id="dash-approval"
             value={approvalStatus}
             onChange={(e) => setApprovalStatus(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <option value="">All</option>
             {VOUCHER_STATUSES.map((s) => (

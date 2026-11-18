@@ -273,7 +273,7 @@ export function VoucherPaymentPanel({
                 id={`pay-account-${voucher.voucherId}`}
                 value={accountId}
                 onChange={(e) => setAccountId(e.target.value)}
-                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
               >
                 <option value="">Select account</option>
                 {accounts.map((account) => (

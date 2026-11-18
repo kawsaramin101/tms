@@ -77,9 +77,7 @@ export default function HomePage() {
               screenshots with a single record — who paid, what was spent,
               and proof for both.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <HomeActions />
-            </div>
+            <HomeActions />
           </div>
         </section>
 

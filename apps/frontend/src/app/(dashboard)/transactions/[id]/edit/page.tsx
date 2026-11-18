@@ -110,7 +110,7 @@ export default function EditTransactionPage() {
             id="accountId"
             value={accountId}
             onChange={(e) => setAccountId(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
             required
           >
             <option value="">Select an account</option>
@@ -129,7 +129,7 @@ export default function EditTransactionPage() {
             onChange={(e) =>
               setTransactionType(e.target.value as TransactionType)
             }
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             {TRANSACTION_TYPES.map((t) => (
               <option key={t} value={t}>
@@ -189,7 +189,7 @@ export default function EditTransactionPage() {
             id="status"
             value={status}
             onChange={(e) => setStatus(e.target.value as TransactionStatus)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             {TRANSACTION_STATUSES.map((s) => (
               <option key={s} value={s}>

@@ -99,7 +99,7 @@ export default function UsersPage() {
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
             >
               {USER_ROLES.map((r) => (
                 <option key={r} value={r}>

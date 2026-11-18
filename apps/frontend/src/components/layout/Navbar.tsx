@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Menu, X, BookLock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/shared/mode-toggle";
-import { LogoutButton } from "@/modules/auth/components/logout-button";
+import { ProfileDropdown } from "@/modules/auth/components/profile-dropdown";
+import { useAuth } from "@/modules/auth/hooks/use-auth";
 import { NotificationBadgeButton } from "@/modules/notifications/components/notification-badge-button";
-import { getToken } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -21,11 +21,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  useEffect(() => {
-    Promise.resolve().then(() => setLoggedIn(getToken() !== null));
-  }, []);
+  const { user, isAuthenticated } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -55,10 +51,10 @@ export function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-2 md:flex">
-          {loggedIn && <NotificationBadgeButton />}
+          {isAuthenticated && <NotificationBadgeButton />}
           <ModeToggle />
-          {loggedIn ? (
-            <LogoutButton />
+          {isAuthenticated ? (
+            <ProfileDropdown user={user} />
           ) : (
             <>
               <Button variant="ghost" asChild>
@@ -73,8 +69,9 @@ export function Navbar() {
 
         {/* Mobile actions */}
         <div className="flex items-center gap-1 md:hidden">
-          {loggedIn && <NotificationBadgeButton />}
+          {isAuthenticated && <NotificationBadgeButton />}
           <ModeToggle />
+          {isAuthenticated && <ProfileDropdown user={user} />}
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -105,24 +102,20 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="mt-2 flex flex-col gap-2 border-t border-border pt-3">
-            {loggedIn ? (
-              <LogoutButton />
-            ) : (
-              <>
-                <Button variant="ghost" asChild className="justify-start">
-                  <Link href="/login" onClick={() => setOpen(false)}>
-                    Log in
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/register" onClick={() => setOpen(false)}>
-                    Get started
-                  </Link>
-                </Button>
-              </>
-            )}
-          </div>
+          {!isAuthenticated && (
+            <div className="mt-2 flex flex-col gap-2 border-t border-border pt-3">
+              <Button variant="ghost" asChild className="justify-start">
+                <Link href="/login" onClick={() => setOpen(false)}>
+                  Log in
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/register" onClick={() => setOpen(false)}>
+                  Get started
+                </Link>
+              </Button>
+            </div>
+          )}
         </nav>
       </div>
     </header>

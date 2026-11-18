@@ -1,14 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { logout } from "../api";
 import { clearToken, getToken } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
 
-export function LogoutButton() {
+export function useLogout() {
   const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleLogout() {
+    if (loggingOut) return;
+    setLoggingOut(true);
+
     const token = getToken();
     if (token) {
       try {
@@ -17,13 +21,10 @@ export function LogoutButton() {
         // Best-effort audit call; clear locally regardless.
       }
     }
+
     clearToken();
     router.push("/login");
   }
 
-  return (
-    <Button variant="outline" size="sm" onClick={handleLogout}>
-      Log out
-    </Button>
-  );
+  return { logout: handleLogout, loggingOut };
 }

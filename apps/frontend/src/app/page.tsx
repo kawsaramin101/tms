@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ShieldCheck,
   ArrowLeftRight,
@@ -8,10 +7,9 @@ import {
   BarChart3,
   Bell,
   DatabaseBackup,
-  ArrowRight,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
-import { Button } from "@/components/ui/button";
+import { HomeActions } from "@/modules/auth/components/home-actions";
 import {
   Card,
   CardHeader,
@@ -80,15 +78,7 @@ export default function HomePage() {
               and proof for both.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button size="lg" asChild>
-                <Link href="/register">
-                  Get started
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/login">Log in</Link>
-              </Button>
+              <HomeActions />
             </div>
           </div>
         </section>

@@ -1,25 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getToken } from "@/lib/auth";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import {
+  getServerTokenSnapshot,
+  getTokenSnapshot,
+  subscribeToAuth,
+} from "@/lib/auth";
 import { getMe } from "../api";
 import type { UserDto } from "../types";
 
 export function useAuth() {
+  const token = useSyncExternalStore(
+    subscribeToAuth,
+    getTokenSnapshot,
+    getServerTokenSnapshot,
+  );
   const [user, setUser] = useState<UserDto | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      Promise.resolve().then(() => setLoading(false));
-      return;
-    }
-    getMe(token)
-      .then(setUser)
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-  }, []);
+    let active = true;
 
-  return { user, loading };
+    Promise.resolve().then(() => {
+      if (!active) return;
+
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      getMe(token)
+        .then((nextUser) => {
+          if (active) setUser(nextUser);
+        })
+        .catch(() => {
+          if (active) setUser(null);
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
+  return { user, loading, token, isAuthenticated: token !== null };
 }

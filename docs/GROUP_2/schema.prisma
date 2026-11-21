@@ -1,0 +1,45 @@
+model Account {
+  accountId      Int      @id @default(autoincrement()) @map("account_id")
+  accountName    String   @map("account_name") @db.VarChar(100)
+  accountType    String   @map("account_type") @db.VarChar(50)
+  accountNumber  String?  @map("account_number") @db.VarChar(100)
+  openingBalance Decimal  @default(0) @map("opening_balance") @db.Decimal(15, 2)
+  currentBalance Decimal  @default(0) @map("current_balance") @db.Decimal(15, 2)
+  status         String   @db.VarChar(20)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+model Transaction {
+  transactionId     Int      @id @default(autoincrement()) @map("transaction_id")
+  transactionNumber String   @unique @map("transaction_number") @db.VarChar(50)
+  accountId         Int      @map("account_id")
+  programmeId       Int?     @map("programme_id")
+  voucherId         Int?     @map("voucher_id")
+  transactionType   String   @map("transaction_type") @db.VarChar(30)
+  category          String?  @db.VarChar(100)
+  amount            Decimal  @db.Decimal(15, 2)
+  description       String?  @db.Text
+  referenceNumber   String?  @map("reference_number") @db.VarChar(100)
+  transactionDate   DateTime @default(now()) @map("transaction_date")
+  status            String   @db.VarChar(20)
+  createdBy         Int      @map("created_by")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  account   Account    @relation(fields: [accountId], references: [accountId], onDelete: Restrict, onUpdate: Cascade)
+  creator   User       @relation("TransactionCreatedBy", fields: [createdBy], references: [userId], onDelete: Restrict, onUpdate: Cascade)
+  programme Programme? @relation(fields: [programmeId], references: [programmeId], onDelete: Restrict, onUpdate: Cascade)
+  voucher   Voucher?   @relation("VoucherPayments", fields: [voucherId], references: [voucherId], onDelete: Restrict, onUpdate: Cascade)
+  vouchers  Voucher[]
+
+  @@unique([voucherId, referenceNumber])
+  @@index([accountId])
+  @@index([createdBy])
+  @@index([transactionDate])
+  @@index([programmeId])
+  @@index([voucherId])
+  @@map("transactions")
+}
